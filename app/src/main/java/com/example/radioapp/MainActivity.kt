@@ -49,7 +49,9 @@ class MainActivity : AppCompatActivity() {
             val element = parent.getItemAtPosition(position)
             val intent = Intent(this, NewListItem::class.java)
             intent.putExtra("purpose", "editing")
-            //intent.putExtra("position", position)
+            intent.putExtra("position", position)
+            intent.putExtraJson("data", element)
+
             startActivityForResult(intent, 2)
 
         }

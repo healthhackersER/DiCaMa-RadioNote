@@ -11,9 +11,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="Beschreibung"
-        android:inputType="textPersonName"
+        android:hint="Kurzbeschreibung"
         android:imeOptions="actionDone"
+        android:inputType="textPersonName"
         app:layout_constraintEnd_toStartOf="@+id/edit_Date"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

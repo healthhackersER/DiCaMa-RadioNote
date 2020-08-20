@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="type_array">
+        <item>unbekannt</item>
+        <item>CT-Kopf-nativ</item>
+        <item>CT-Thorax-nativ</item>
+        <item>CT-Thorax-Kontrastmittel</item>
+        <item>CT-Oberbauch-Kontrastmittel</item>
+        <item>CT-Abdomen-nativ</item>
+        <item>CT-Abdomen-Kontrastmittel</item>
+        <item>MRT-Kopf-nativ</item>
+        <item>MRT-Kopf-Kontrasmittel</item>
+        <item>MRT-Oberbauch-Kontrasmittel</item>
+        <item>MRT-Abdomen-Kontrasmittel</item>
+        <item>Röntgen-Thorax</item>
+        <item>Röntgen-Abdomen</item>
+
+    </string-array>
+</resources>
