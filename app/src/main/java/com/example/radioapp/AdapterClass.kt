@@ -51,6 +51,8 @@ class AdapterClass (context: Context, private val layoutResource: Int,
 
         titleTextView.text=object_item.examination
         detailTextView.text= object_item.date
+        var dropdownStringArray= context.resources.getStringArray(R.array.type_array)
+        subtitleTextView.text=dropdownStringArray[object_item.type!!].toString()
 
         return rowView
         }

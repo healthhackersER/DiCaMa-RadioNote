@@ -7,7 +7,6 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_new_list_item.*
 import android.widget.*
-import kotlinx.android.synthetic.*
 
 
 class NewListItem : AppCompatActivity() {
@@ -16,7 +15,9 @@ class NewListItem : AppCompatActivity() {
         setContentView(R.layout.activity_new_list_item)
 
         //variables and values for different buttons, textfields usw.
-        val newButton = findViewById(R.id.edit_ok_Button) as Button
+        val okButton = findViewById<Button>(R.id.edit_ok_Button)
+        val cancelButton = findViewById<Button>(R.id.edit_cancel_Button)
+        val deleteButton = findViewById<ImageButton>(R.id.edit_delete_Button)
         val intent = getIntent()
         val purpose = intent.getStringExtra("purpose")
         val editAblageort = findViewById(R.id.edit_Ablageort) as TextView
@@ -60,7 +61,7 @@ class NewListItem : AppCompatActivity() {
 
         //if an existing item was clicked
         if (purpose == "editing") {
-            var objectClass= intent.getJsonExtra("data", ObjectClass::class.java)
+            val objectClass= intent.getJsonExtra("data", ObjectClass::class.java)
             position = intent.getIntExtra("position",0)
 
             //loading the data from the data object
@@ -69,21 +70,18 @@ class NewListItem : AppCompatActivity() {
             edit_Ablageort.setText(objectClass!!.storage)
             edit_Beurteilung.setText(objectClass!!.evaluation)
             edit_Notiz.setText(objectClass!!.note)
-            val position = objectClass.type!!
-            spinner.setSelection(position)
+            val current_position = objectClass.type!!
+            spinner.setSelection(current_position)
             }
 
              //TODO: load the image
-
-
-
 
         if (purpose == "new") {
 
         }
 
 
-        newButton.setOnClickListener {
+        okButton.setOnClickListener {
             val nameExamination = edit_Beschreibung.text.toString()
             val dateExamination = edit_Date.text.toString()
             val storageData = edit_Ablageort.text.toString()
@@ -91,13 +89,25 @@ class NewListItem : AppCompatActivity() {
             val noteData = edit_Notiz.text.toString()
 
             val testValue: ObjectClass = ObjectClass(nameExamination, spinner_selection, dateExamination, storageData,evaluationData,noteData, null)
-            val intent = Intent(this, MainActivity::class.java)
-            intent.putExtraJson("data", testValue)
-            intent.putExtra("position",position)
-            setResult(Activity.RESULT_OK, intent)
+            val okIntent = Intent(this, MainActivity::class.java)
+            okIntent.putExtraJson("data", testValue)
+            okIntent.putExtra("position",position)
+            setResult(Activity.RESULT_OK, okIntent)
             finish()
         }
 
+        cancelButton.setOnClickListener{
+            val cancelIntent = Intent(this, MainActivity::class.java)
+            setResult(Activity.RESULT_CANCELED, cancelIntent)
+            finish()
+        }
+
+        deleteButton.setOnClickListener{
+            val deleteIntent = Intent(this, MainActivity::class.java)
+            deleteIntent.putExtra("position",position)
+            setResult(Activity.RESULT_FIRST_USER, deleteIntent)
+            finish()
+        }
     }
 }
 
