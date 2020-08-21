@@ -11,23 +11,23 @@ import android.widget.ImageView
 import android.widget.TextView
 
 class AdapterClass (context: Context, private val layoutResource: Int,
-                                        private val dataSource: MutableList<Any>) : ArrayAdapter<Any>(context,layoutResource,dataSource) {
+                                        private val dataSource: MutableList<ObjectClass>) : ArrayAdapter<ObjectClass>(context,layoutResource,dataSource) {
 
     private val inflater: LayoutInflater
             = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
-    //1
+
 
     override fun getCount(): Int {
         return dataSource.size
     }
 
-    //2
-    override fun getItem(position: Int): Any {
+
+    override fun getItem(position: Int): ObjectClass {
         return dataSource[position]
     }
 
-    //3
+
     override fun getItemId(position: Int): Long {
         return position.toLong()
     }
