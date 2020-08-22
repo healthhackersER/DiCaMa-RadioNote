@@ -1,15 +1,86 @@
 package com.example.radioapp
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.database.Cursor
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.icu.text.SimpleDateFormat
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
-import kotlinx.android.synthetic.main.activity_new_list_item.*
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import kotlinx.android.synthetic.main.activity_new_list_item.*
+import java.io.File
+import java.io.IOException
+import java.util.*
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+
+
+/**
+ * Help functions to properly delete a file
+ */
+private fun Path.exists(): Boolean = Files.exists(this)
+
+//wraps file directory
+private fun Path.isFile(): Boolean = !Files.isDirectory(this)
+
+//file delete function
+private fun Path.delete(): Boolean {
+    return if (isFile() && exists()) {
+        //Actual delete operation
+        Files.delete(this)
+        true
+    } else {
+        false
+    }
+}
 
 //Class for the editing Activity of the listView Item Objects
 class NewListItem : AppCompatActivity() {
+    //creating a unique path name for the photo app and save it in currentPhotoPath
+    var currentPhotoPath: String? = null
+
+    companion object {
+        const val REQUEST_TAKE_PHOTO = 1
+        const val REQUEST_IMAGE_CAPTURE = 2
+    }
+
+    //runtime permission check methods
+    val permissions = arrayOf(
+        android.Manifest.permission.CAMERA,
+        android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        android.Manifest.permission.READ_EXTERNAL_STORAGE
+    )
+
+    private fun hasNoPermissions(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        ) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.CAMERA
+        ) != PackageManager.PERMISSION_GRANTED
+    }
+
+    fun requestPermission() {
+        ActivityCompat.requestPermissions(this, permissions, 0)
+    }
+
+    //on create function of the list item class
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_list_item)
@@ -18,12 +89,15 @@ class NewListItem : AppCompatActivity() {
         val okButton = findViewById<Button>(R.id.edit_ok_Button)
         val cancelButton = findViewById<Button>(R.id.edit_cancel_Button)
         val deleteButton = findViewById<ImageButton>(R.id.edit_delete_Button)
-        val intent = getIntent()
+        val photoButton = findViewById<ImageButton>(R.id.edit_photo_Button)
+
         val purpose = intent.getStringExtra("purpose")
-        val editAblageort = findViewById(R.id.edit_Ablageort) as TextView
-        val editBeurteilung = findViewById(R.id.edit_Beurteilung) as TextView
-        val editNotiz = findViewById(R.id.edit_Notiz) as TextView
+        val editAblageort = findViewById<TextView>(R.id.edit_Ablageort)
+        val editBeurteilung = findViewById<TextView>(R.id.edit_Beurteilung)
+        val editNotiz = findViewById<TextView>(R.id.edit_Notiz)
+        val editBildbeschreibung = findViewById<TextView>(R.id.edit_Bildbeschreibung)
         var spinner_selection: Int? = null
+        val intent = getIntent()
 
         //random listView position initialization to make it none null
         var position: Int = 505
@@ -40,6 +114,10 @@ class NewListItem : AppCompatActivity() {
         if (editNotiz != null) {
             editNotiz.setHorizontallyScrolling(false)
             editNotiz.setMaxLines(20)
+        }
+        if (editBildbeschreibung != null) {
+            editBildbeschreibung.setHorizontallyScrolling(false)
+            editBildbeschreibung.setMaxLines(10)
         }
 
         if (edit_Beschreibung != null) {
@@ -82,6 +160,12 @@ class NewListItem : AppCompatActivity() {
             edit_Ablageort.setText(objectClass!!.storage)
             edit_Beurteilung.setText(objectClass!!.evaluation)
             edit_Notiz.setText(objectClass!!.note)
+            if (objectClass.image != null) {
+                currentPhotoPath = objectClass.image
+                val currentImage = BitmapFactory.decodeFile(objectClass.image)
+                imageView.setImageBitmap(currentImage)
+            }
+
             val current_position = objectClass.type!!
             spinner.setSelection(current_position)
         }
@@ -109,7 +193,7 @@ class NewListItem : AppCompatActivity() {
                 storageData,
                 evaluationData,
                 noteData,
-                null
+                currentPhotoPath
             )
             val okIntent = Intent(this, MainActivity::class.java)
             okIntent.putExtraJson("data", testValue)
@@ -137,10 +221,80 @@ class NewListItem : AppCompatActivity() {
             //else delete the listView Item
             else {
                 deleteIntent.putExtra("position", position)
+                val path = Paths.get(currentPhotoPath)
+                if (path.delete()) {
+                    println("Deketed ${path.fileName}")
+                } else {
+                    println("Could not delete ${path.fileName}")
+                }
                 setResult(Activity.RESULT_FIRST_USER, deleteIntent)
                 finish()
             }
         }
+
+        //when the photo Button is clicked
+        photoButton.setOnClickListener {
+            Toast.makeText(this, "Button Clicked", Toast.LENGTH_SHORT).show()
+            //dispatchTakePictureIntent()
+            //check permissions
+            if (hasNoPermissions()) {
+                requestPermission()
+            }
+
+            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            val photoFile = createImageFile()
+            //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoFile)
+            val fileProvider =
+                FileProvider.getUriForFile(this, "com.example.radioapp.fileprovider", photoFile)
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
+
+            if (takePictureIntent.resolveActivity(packageManager) != null) {
+                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO)
+            } else {
+                Toast.makeText(this, "Unable to open camera", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+
     }
+
+
+    private fun getPhotoFile(fileName: String): File {
+        val storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(fileName, ".jpg", storageDirectory)
+    }
+
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_TAKE_PHOTO && resultCode == Activity.RESULT_OK) {
+            //val takenImage = data?.extras?.get("data") as Bitmap
+            val takenImage = BitmapFactory.decodeFile(currentPhotoPath)
+            imageView.setImageBitmap(takenImage)
+        } else {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
+        onRestart()
+    }
+
+
+    //creating a unique path name for the photo app and save it in currentPhotoPath
+    //var currentPhotoPath: String? = null
+
+    @Throws(IOException::class)
+    private fun createImageFile(): File {
+        // Create an image file name
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(
+            "JPEG_${timeStamp}_", /* prefix */
+            ".jpg", /* suffix */
+            storageDir /* directory */
+        ).apply {
+            // Save a file: path for use with ACTION_VIEW intents
+            currentPhotoPath = absolutePath
+        }
+    }
+
+
 }
 

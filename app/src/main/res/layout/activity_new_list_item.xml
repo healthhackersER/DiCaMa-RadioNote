@@ -84,18 +84,53 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/imageView"
-                android:layout_width="214dp"
-                android:layout_height="212dp"
-                android:layout_marginTop="8dp"
-                tools:srcCompat="@tools:sample/avatars" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/text_image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Bildbeschreibung" />
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="214dp"
+                    android:layout_height="212dp"
+                    android:layout_marginTop="8dp"
+                    tools:srcCompat="@tools:sample/avatars" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/text_image"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Bildbeschreibung" />
+
+                    <EditText
+                        android:id="@+id/edit_Bildbeschreibung"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:hint="Bildbeschreibung"
+                        android:imeOptions="actionDone"
+                        android:inputType="textLongMessage|textAutoComplete"/>
+
+
+                    <androidx.constraintlayout.widget.Guideline
+                        android:id="@+id/guideline"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
+                    <ImageButton
+                        android:id="@+id/edit_photo_Button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@android:drawable/ic_menu_camera" />
+                </LinearLayout>
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/text_Ablageort"
@@ -148,6 +183,7 @@
                 android:hint="Notiz"
                 android:imeOptions="actionDone"
                 android:inputType="textLongMessage|textAutoComplete" />
+
         </LinearLayout>
     </ScrollView>
 

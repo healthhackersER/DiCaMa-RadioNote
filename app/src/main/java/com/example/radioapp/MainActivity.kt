@@ -1,5 +1,6 @@
 package com.example.radioapp
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -10,7 +11,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import java.io.File
 import android.content.Context
+import android.content.pm.PackageManager
 import android.widget.Button
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.FileOutputStream
@@ -27,7 +31,21 @@ class MainActivity : AppCompatActivity() {
         const val EDIT_ITEM = 2
         const val SHARED_PREFERANCES= "shared_preferences"
         const val KEY_PATH="radioApp"
+        const val REQUEST_IMAGE_CAPTURE=3
 
+    }
+    //Checking for the permissions at runtime methods
+    val permissions = arrayOf(android.Manifest.permission.CAMERA, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE)
+
+    private fun hasNoPermissions(): Boolean{
+        return ContextCompat.checkSelfPermission(this,
+            Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this,
+            Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+    }
+
+    fun requestPermission(){
+        ActivityCompat.requestPermissions(this, permissions,0)
     }
 
 //    //List and adapter which hold the Data
@@ -49,7 +67,11 @@ class MainActivity : AppCompatActivity() {
         val deleteButton = findViewById<ImageButton>(R.id.delete_Button)
         val saveButton = findViewById<Button>(R.id.save_Button)
 
-//
+        //requesting the permission at runtime
+        if (hasNoPermissions()){
+            requestPermission()
+            }
+
 //      var listItems = mutableListOf<ObjectClass>()
         var listItems = loadFromFile()
 
@@ -86,6 +108,7 @@ class MainActivity : AppCompatActivity() {
             return@setOnItemLongClickListener (true)
         }
 
+        //saving the listitem object to sharedPreferences on button click
         saveButton.setOnClickListener{
             val sharedPreferences = getSharedPreferences(SHARED_PREFERANCES, Context.MODE_PRIVATE)
             val editor = sharedPreferences.edit()
@@ -149,6 +172,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    //method load the list items from sharedPreferences
     private fun loadFromFile(): MutableList<ObjectClass> {
         val sharedPreferences = getSharedPreferences(SHARED_PREFERANCES, Context.MODE_PRIVATE)
         val gson = Gson()
