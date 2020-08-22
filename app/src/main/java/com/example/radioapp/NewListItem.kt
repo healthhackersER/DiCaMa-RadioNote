@@ -46,9 +46,11 @@ private fun Path.delete(): Boolean {
     }
 }
 
-//Class for the editing Activity of the listView Item Objects
+/**
+ * Activity Class to edit the different list view items
+ */
 class NewListItem : AppCompatActivity() {
-    //creating a unique path name for the photo app and save it in currentPhotoPath
+    //variable for the pathname of the photo taken by the camera activity, needs to be declared here in order for all class function to be able to access it
     var currentPhotoPath: String? = null
 
     companion object {
@@ -56,13 +58,16 @@ class NewListItem : AppCompatActivity() {
         const val REQUEST_IMAGE_CAPTURE = 2
     }
 
-    //runtime permission check methods
+    /**
+     * following code implements a variable and method to check for the required permissions on runtime
+     */
     val permissions = arrayOf(
         android.Manifest.permission.CAMERA,
         android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
         android.Manifest.permission.READ_EXTERNAL_STORAGE
     )
 
+    //method to check for permissions
     private fun hasNoPermissions(): Boolean {
         return ContextCompat.checkSelfPermission(
             this,
@@ -76,11 +81,14 @@ class NewListItem : AppCompatActivity() {
         ) != PackageManager.PERMISSION_GRANTED
     }
 
+    //requesting the permissions
     fun requestPermission() {
         ActivityCompat.requestPermissions(this, permissions, 0)
     }
 
-    //on create function of the list item class
+    /**
+     * creating the Activity to edit the listView item
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_list_item)
@@ -124,7 +132,7 @@ class NewListItem : AppCompatActivity() {
             edit_Beschreibung.setHorizontallyScrolling(false)
         }
 
-        //setting up the spinner as a dropdown menue, items of the dropdown menue defined n values dropdown
+        //setting up the spinner as a dropdown menu, items of the dropdown menu defined n values dropdown
         val spinner = findViewById<Spinner>(R.id.spinner)
         val spinner_adapter = ArrayAdapter.createFromResource(
             this,
@@ -149,7 +157,9 @@ class NewListItem : AppCompatActivity() {
         }
 
 
-        //if an existing item was clicked
+        /**
+         * if an existing item was clicked
+         */
         if (purpose == "editing") {
             val objectClass = intent.getJsonExtra("data", ObjectClass::class.java)
             position = intent.getIntExtra("position", 0)
@@ -160,6 +170,8 @@ class NewListItem : AppCompatActivity() {
             edit_Ablageort.setText(objectClass!!.storage)
             edit_Beurteilung.setText(objectClass!!.evaluation)
             edit_Notiz.setText(objectClass!!.note)
+
+            //loading the image from file
             if (objectClass.image != null) {
                 currentPhotoPath = objectClass.image
                 val currentImage = BitmapFactory.decodeFile(objectClass.image)
@@ -170,14 +182,15 @@ class NewListItem : AppCompatActivity() {
             spinner.setSelection(current_position)
         }
 
-        //TODO: load the image
 
         //if the activity was started by the new exmamination button
         if (purpose == "new") {
             //do nothing
         }
 
-        //if the editing is finnished and the user clicks on the ok button
+        /**
+         * if the user is finnished and clicks on the ok button the edited/entered values get returned to the main activity
+         */
         okButton.setOnClickListener {
             val nameExamination = edit_Beschreibung.text.toString()
             val dateExamination = edit_Date.text.toString()
@@ -220,7 +233,9 @@ class NewListItem : AppCompatActivity() {
             }
             //else delete the listView Item
             else {
+                //telling the main activity to delete the listView item
                 deleteIntent.putExtra("position", position)
+                //delete the image file
                 val path = Paths.get(currentPhotoPath)
                 if (path.delete()) {
                     println("Deketed ${path.fileName}")
@@ -234,8 +249,7 @@ class NewListItem : AppCompatActivity() {
 
         //when the photo Button is clicked
         photoButton.setOnClickListener {
-            Toast.makeText(this, "Button Clicked", Toast.LENGTH_SHORT).show()
-            //dispatchTakePictureIntent()
+
             //check permissions
             if (hasNoPermissions()) {
                 requestPermission()
@@ -243,11 +257,12 @@ class NewListItem : AppCompatActivity() {
 
             val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             val photoFile = createImageFile()
-            //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoFile)
+            //creating the Uri necessary for SDK 29 up
             val fileProvider =
                 FileProvider.getUriForFile(this, "com.example.radioapp.fileprovider", photoFile)
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
 
+            //starting the camera activity with check if it is possible
             if (takePictureIntent.resolveActivity(packageManager) != null) {
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO)
             } else {
@@ -258,12 +273,17 @@ class NewListItem : AppCompatActivity() {
 
     }
 
-
+    /**
+     * unused function to create jpg file from filename
+     */
     private fun getPhotoFile(fileName: String): File {
         val storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         return File.createTempFile(fileName, ".jpg", storageDirectory)
     }
 
+    /**
+     * method to display and set up tp the pathname for the image taken by the camera
+     */
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == Activity.RESULT_OK) {
@@ -277,8 +297,9 @@ class NewListItem : AppCompatActivity() {
     }
 
 
-    //creating a unique path name for the photo app and save it in currentPhotoPath
-    //var currentPhotoPath: String? = null
+    /**
+     * creating a unique path name for the photo app and save it in currentPhotoPath
+     */
 
     @Throws(IOException::class)
     private fun createImageFile(): File {
