@@ -11,10 +11,16 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import java.io.File
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.text.method.TextKeyListener.clear
+import android.widget.ArrayAdapter
 import android.widget.Button
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.FileOutputStream
@@ -34,6 +40,7 @@ class MainActivity : AppCompatActivity() {
         const val REQUEST_IMAGE_CAPTURE=3
 
     }
+
     //Checking for the permissions at runtime methods
     val permissions = arrayOf(android.Manifest.permission.CAMERA, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_EXTERNAL_STORAGE)
 
@@ -48,18 +55,25 @@ class MainActivity : AppCompatActivity() {
         ActivityCompat.requestPermissions(this, permissions,0)
     }
 
-//    //List and adapter which hold the Data
-//    var listItems = mutableListOf<Any>()
+    //List and adapter which hold the Data
+    //var listItems = mutableListOf<Any>()
     //var listItems = loadFromFile()
 
-    //lateinit var adapter: ArrayAdapter<Any>
-    lateinit var adapter: AdapterClass
 
+    //lateinit var adapter: ArrayAdapter<Any>
+    private lateinit var adapter: AdapterClass
+
+    //forRecyclerView
+//    private lateinit var recyclerView: RecyclerView
+//    private lateinit var adapter: MyAdapter
+//    private lateinit var viewManager: RecyclerView.LayoutManager
 
     //Creating the Main ListView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
         //TODO: implementing the aftermentioned Buttons
         val shareButton = findViewById<ImageButton>(R.id.share_Button)
         val searchButton = findViewById<ImageButton>(R.id.search_Button)
@@ -80,10 +94,21 @@ class MainActivity : AppCompatActivity() {
         adapter = AdapterClass(this, R.layout.listview_item, listItems)
 
 
-        // attach the array adapter with list view
+        //attach the array adapter with list view
         val listView: android.widget.ListView = findViewById(R.id.listview_1)
         listView.adapter = adapter
         listView.setChoiceMode(CHOICE_MODE_SINGLE)
+
+        //Recyclerview
+//        viewManager = LinearLayoutManager(this)
+//        adapter = MyAdapter(listItems)
+//        //Converting to RecylcerView
+//        recyclerView = findViewById<RecyclerView>(R.id.my_recycler_view).apply{
+//            setHasFixedSize(true)
+//            layoutManager = viewManager
+//            adapter = adapter
+//
+//        }
 
 
         // opening the editing Activity when a click is performed on an existing listView Item

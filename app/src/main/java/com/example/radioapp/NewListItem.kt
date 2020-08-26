@@ -2,29 +2,39 @@ package com.example.radioapp
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.database.Cursor
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.icu.text.SimpleDateFormat
-import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
+import android.util.SparseArray
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.text.set
+import androidx.core.text.toSpannable
 import kotlinx.android.synthetic.main.activity_new_list_item.*
 import java.io.File
 import java.io.IOException
-import java.util.*
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.*
+import kotlin.collections.HashMap
+import kotlin.collections.LinkedHashMap
 
 
 /**
@@ -47,11 +57,25 @@ private fun Path.delete(): Boolean {
 }
 
 /**
+ * Help function to parse a string array
+ */
+fun parseStringArray(stringArrayResourceId: Int, context: Context): MutableMap <String,String>{
+    val stringArray: Array<String> = context.getResources().getStringArray(stringArrayResourceId)
+    val outputArray = mutableMapOf<String,String>()
+    for (entry in stringArray) {
+        val splitResult = entry.split("\\|".toRegex(), 2).toTypedArray()
+        outputArray.put(splitResult[0], splitResult[1])
+    }
+    return outputArray
+}
+
+/**
  * Activity Class to edit the different list view items
  */
 class NewListItem : AppCompatActivity() {
     //variable for the pathname of the photo taken by the camera activity, needs to be declared here in order for all class function to be able to access it
     var currentPhotoPath: String? = null
+
 
     companion object {
         const val REQUEST_TAKE_PHOTO = 1
@@ -90,8 +114,12 @@ class NewListItem : AppCompatActivity() {
      * creating the Activity to edit the listView item
      */
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_list_item)
+        val myStringMap = parseStringArray(R.array.key_string_array, this)
+        var clickList = mutableListOf<Any>()
+
 
         //variables and values for different buttons, textfields ect.
         val okButton = findViewById<Button>(R.id.edit_ok_Button)
@@ -180,6 +208,8 @@ class NewListItem : AppCompatActivity() {
 
             val current_position = objectClass.type!!
             spinner.setSelection(current_position)
+
+            checkKeyWords(edit_Beurteilung, myStringMap, clickList)
         }
 
 
@@ -187,6 +217,9 @@ class NewListItem : AppCompatActivity() {
         if (purpose == "new") {
             //do nothing
         }
+
+        //to deselect all items at start
+
 
         /**
          * if the user is finnished and clicks on the ok button the edited/entered values get returned to the main activity
@@ -268,8 +301,57 @@ class NewListItem : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Unable to open camera", Toast.LENGTH_SHORT).show()
             }
+
+
         }
 
+
+
+        //method to check if done button is clicked in TextView
+        // use: myEditText.onClickKeyboardDoneButton{myFunctionToExecuteWhenUserClickDone()}
+        fun TextView.onClickKeyboardDoneButton(funExecute: () -> Unit) {
+            this.setOnEditorActionListener { _, actionId, _ ->
+                when (actionId) {
+                    EditorInfo.IME_ACTION_DONE -> {
+                        funExecute.invoke()
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }
+    }
+
+//    //TODO: function to check a TextViews for keys in mykeymap, and then setting them to clickable
+    //method to check the TextView Items for key words.
+    fun checkKeyWords(target:TextView, thisStringMap: MutableMap<String,String>,array: MutableList<Any>){
+        val sentenceString=target.text.toString()
+        val spanString = SpannableString(sentenceString)
+        val sentenceWords= sentenceString.replace('\n', ' ').split(" ")
+
+
+        for (word in sentenceWords){
+            if (thisStringMap.containsKey(word)){
+                val startIndex=sentenceString.indexOf(word,0)
+                val stopIndex=startIndex+word.length
+
+                val clickableSpan= object : ClickableSpan() {
+                    @Override
+                    override fun onClick(p0: View) {
+                        //Do nothing
+                        val message=thisStringMap.getValue(word)
+                        Toast.makeText(this@NewListItem, message, Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                spanString.setSpan(clickableSpan,startIndex,stopIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+
+            }
+
+        }
+        target.text = spanString
+        target.movementMethod = LinkMovementMethod.getInstance()
 
     }
 
