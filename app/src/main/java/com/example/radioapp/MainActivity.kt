@@ -14,6 +14,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.text.method.TextKeyListener.clear
+import android.widget.AbsListView.CHOICE_MODE_MULTIPLE
 import android.widget.ArrayAdapter
 import android.widget.Button
 import androidx.core.app.ActivityCompat
@@ -80,6 +81,10 @@ class MainActivity : AppCompatActivity() {
         val configButton = findViewById<ImageButton>(R.id.config_Button)
         val deleteButton = findViewById<ImageButton>(R.id.delete_Button)
         val saveButton = findViewById<Button>(R.id.save_Button)
+        val favoriteButton = findViewById<ImageButton>(R.id.favorite_Button)
+        val sortButton = findViewById<ImageButton>(R.id.sort_Button)
+        //toggle value for the favorite Button to toggle bettwen date and favorite
+        val toggle = false
 
         //requesting the permission at runtime
         if (hasNoPermissions()){
@@ -94,10 +99,14 @@ class MainActivity : AppCompatActivity() {
         adapter = AdapterClass(this, R.layout.listview_item, listItems)
 
 
+
         //attach the array adapter with list view
         val listView: android.widget.ListView = findViewById(R.id.listview_1)
+        listView.itemsCanFocus = true
         listView.adapter = adapter
-        listView.setChoiceMode(CHOICE_MODE_SINGLE)
+        //listView.setChoiceMode(CHOICE_MODE_SINGLE)
+
+//        listView.choiceMode = CHOICE_MODE_MULTIPLE
 
         //Recyclerview
 //        viewManager = LinearLayoutManager(this)
@@ -114,9 +123,14 @@ class MainActivity : AppCompatActivity() {
         // opening the editing Activity when a click is performed on an existing listView Item
         listView.setOnItemClickListener { parent, view, position, id ->
 
-            //Toast.makeText(this, "Clicked item : $position", Toast.LENGTH_SHORT).show()
-            val element = parent.getItemAtPosition(position)
+            Toast.makeText(this, "Clicked item : $position", Toast.LENGTH_SHORT).show()
+
+            val element: ObjectClass = parent.getItemAtPosition(position) as ObjectClass
+            //element.favorites= listView.getItemAtPosition(position)
+
             val intent = Intent(this, NewListItem::class.java)
+
+
             intent.putExtra("purpose", "editing")
             intent.putExtra("position", position)
             intent.putExtraJson("data", element)
@@ -144,6 +158,19 @@ class MainActivity : AppCompatActivity() {
         }
 
 
+        favoriteButton.setOnClickListener{
+            if (toggle==false){
+                adapter.sort(compareByDescending({it.favorites}))
+            }else{
+                adapter.sort(compareBy({it.date}))
+                }
+        }
+
+        //sortFunction
+        sortButton.setOnClickListener{
+                adapter.sort(compareBy({it.date}))
+        }
+
     }
 
     //Opening editing Activity when a click is performed on the new examination button
@@ -153,6 +180,8 @@ class MainActivity : AppCompatActivity() {
         intent.putExtra("purpose", "new")
         startActivityForResult(intent, NEW_ITEM)
     }
+
+
 
     //the results which the MainActivityClass gets returned from the different Activities
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

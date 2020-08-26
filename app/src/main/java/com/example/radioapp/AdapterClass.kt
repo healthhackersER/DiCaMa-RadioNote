@@ -3,14 +3,14 @@ package com.example.radioapp
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.BaseAdapter
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
+import androidx.annotation.RequiresApi
 import kotlinx.android.synthetic.main.activity_new_list_item.*
+import java.time.format.DateTimeFormatter
 
 
 /**
@@ -22,6 +22,8 @@ class AdapterClass (context: Context, private val layoutResource: Int,
 
     private val inflater: LayoutInflater
             = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    @RequiresApi(Build.VERSION_CODES.O)
+    var formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
     override fun getCount(): Int {
         return dataSource.size
@@ -36,6 +38,8 @@ class AdapterClass (context: Context, private val layoutResource: Int,
         return position.toLong()
     }
 
+
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
         // Get view for row item
@@ -52,17 +56,26 @@ class AdapterClass (context: Context, private val layoutResource: Int,
 // Get thumbnail element
         val thumbnailImageView = rowView.findViewById(R.id.object_list_thumbnail) as ImageView
 
+        //Get checkbox element
+        val checkbox = rowView.findViewById(R.id.checkBox) as CheckBox
+
+
+
 // getting the data from the different listView items and setting them to the view
-        val object_item = getItem(position) as ObjectClass
+        var object_item = getItem(position) as ObjectClass
         titleTextView.text=object_item.examination
-        detailTextView.text= object_item.date
+        detailTextView.text= object_item.date?.format(formatter).toString()
         var dropdownStringArray= context.resources.getStringArray(R.array.type_array)
         subtitleTextView.text=dropdownStringArray[object_item.type!!].toString()
         if (object_item.image!=null){
             val currentImage = BitmapFactory.decodeFile(object_item.image)
             thumbnailImageView.setImageBitmap(currentImage)
         }
-
+        //setting the checkbox from saved object
+        checkbox.isChecked = object_item.favorites
+        checkbox.setOnClickListener{
+            object_item.favorites=checkbox.isChecked
+        }
 
         return rowView
         }

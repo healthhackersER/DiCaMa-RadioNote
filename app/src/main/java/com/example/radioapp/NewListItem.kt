@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.icu.text.SimpleDateFormat
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
@@ -20,6 +21,7 @@ import android.util.SparseArray
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -32,6 +34,8 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.collections.LinkedHashMap
@@ -75,6 +79,8 @@ fun parseStringArray(stringArrayResourceId: Int, context: Context): MutableMap <
 class NewListItem : AppCompatActivity() {
     //variable for the pathname of the photo taken by the camera activity, needs to be declared here in order for all class function to be able to access it
     var currentPhotoPath: String? = null
+    @RequiresApi(Build.VERSION_CODES.O)
+    var formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
 
 
     companion object {
@@ -113,6 +119,7 @@ class NewListItem : AppCompatActivity() {
     /**
      * creating the Activity to edit the listView item
      */
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -133,6 +140,7 @@ class NewListItem : AppCompatActivity() {
         val editNotiz = findViewById<TextView>(R.id.edit_Notiz)
         val editBildbeschreibung = findViewById<TextView>(R.id.edit_Bildbeschreibung)
         var spinner_selection: Int? = null
+        var favorites=false
         val intent = getIntent()
 
         //random listView position initialization to make it none null
@@ -194,7 +202,10 @@ class NewListItem : AppCompatActivity() {
 
             //loading the data from the data object
             edit_Beschreibung.setText(objectClass!!.examination)
-            edit_Date.setText(objectClass!!.date)
+
+            val dateFormatted = objectClass!!.date?.format(formatter)
+            edit_Date.setText(dateFormatted.toString())
+            favorites=objectClass.favorites
             edit_Ablageort.setText(objectClass!!.storage)
             edit_Beurteilung.setText(objectClass!!.evaluation)
             edit_Notiz.setText(objectClass!!.note)
@@ -230,16 +241,21 @@ class NewListItem : AppCompatActivity() {
             val storageData = edit_Ablageort.text.toString()
             val evaluationData = edit_Beurteilung.text.toString()
             val noteData = edit_Notiz.text.toString()
+            val favoritesOut= favorites
+            //formating date to Date object
+
+            var date = LocalDate.parse(dateExamination, formatter)
 
             //the values of the different input fields of the editing Activation gets returned to the MainActivity attached to the intent
             val testValue: ObjectClass = ObjectClass(
                 nameExamination,
                 spinner_selection,
-                dateExamination,
+                date,
                 storageData,
                 evaluationData,
                 noteData,
-                currentPhotoPath
+                currentPhotoPath,
+                favoritesOut
             )
             val okIntent = Intent(this, MainActivity::class.java)
             okIntent.putExtraJson("data", testValue)
