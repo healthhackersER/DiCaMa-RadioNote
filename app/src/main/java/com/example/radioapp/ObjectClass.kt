@@ -11,6 +11,7 @@ data class ObjectClass (
     val storage: String?,
     val evaluation: String?,
     val note: String?,
-    val image: String?,
+    val image: MutableList<String>?,
+    val imageDescription: MutableList<String>?,
     var favorites: Boolean
 )

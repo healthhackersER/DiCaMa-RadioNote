@@ -11,23 +11,23 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.text.InputType
+import android.text.InputType.TYPE_CLASS_TEXT
+import android.text.InputType.TYPE_DATETIME_VARIATION_TIME
 import android.text.Spannable
 import android.text.SpannableString
-import android.text.Spanned
-import android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
-import android.util.SparseArray
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.core.text.set
-import androidx.core.text.toSpannable
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.android.synthetic.main.activity_new_list_item.*
 import java.io.File
 import java.io.IOException
@@ -37,8 +37,6 @@ import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
-import kotlin.collections.HashMap
-import kotlin.collections.LinkedHashMap
 
 
 /**
@@ -63,9 +61,9 @@ private fun Path.delete(): Boolean {
 /**
  * Help function to parse a string array
  */
-fun parseStringArray(stringArrayResourceId: Int, context: Context): MutableMap <String,String>{
+fun parseStringArray(stringArrayResourceId: Int, context: Context): MutableMap<String, String> {
     val stringArray: Array<String> = context.getResources().getStringArray(stringArrayResourceId)
-    val outputArray = mutableMapOf<String,String>()
+    val outputArray = mutableMapOf<String, String>()
     for (entry in stringArray) {
         val splitResult = entry.split("\\|".toRegex(), 2).toTypedArray()
         outputArray.put(splitResult[0], splitResult[1])
@@ -78,14 +76,19 @@ fun parseStringArray(stringArrayResourceId: Int, context: Context): MutableMap <
  */
 class NewListItem : AppCompatActivity() {
     //variable for the pathname of the photo taken by the camera activity, needs to be declared here in order for all class function to be able to access it
-    var currentPhotoPath: String? = null
+    var currentPhotoPath: MutableList<String> = mutableListOf<String>()
+    var currentPhotoDescription: MutableList<String> = mutableListOf()
+
     @RequiresApi(Build.VERSION_CODES.O)
-    var formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+    var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
 
     companion object {
         const val REQUEST_TAKE_PHOTO = 1
         const val REQUEST_IMAGE_CAPTURE = 2
+        const val EDIT_DATE = 3
+        const val EDIT_TEXT = 4
+        const val REQUEST_IMAGE_EDITOR = 5
     }
 
     /**
@@ -138,35 +141,53 @@ class NewListItem : AppCompatActivity() {
         val editAblageort = findViewById<TextView>(R.id.edit_Ablageort)
         val editBeurteilung = findViewById<TextView>(R.id.edit_Beurteilung)
         val editNotiz = findViewById<TextView>(R.id.edit_Notiz)
-        val editBildbeschreibung = findViewById<TextView>(R.id.edit_Bildbeschreibung)
+//        val editBildbeschreibung = findViewById<TextView>(R.id.edit_Bildbeschreibung)
+        val editDate = findViewById<TextView>(R.id.edit_Date)
+        val editBeschreibung = findViewById<TextView>(R.id.edit_Beschreibung)
         var spinner_selection: Int? = null
-        var favorites=false
+        var favorites = false
         val intent = getIntent()
 
         //random listView position initialization to make it none null
         var position: Int = 505
 
         //reformating the different text input fields to multiline but still enabeling the done button on touch keyboard
-        if (editAblageort != null) {
-            editAblageort.setHorizontallyScrolling(false)
-            editAblageort.setMaxLines(20)
+//        if (editAblageort != null) {
+//            editAblageort.setHorizontallyScrolling(false)
+//            editAblageort.setMaxLines(20)
+//        }
+//        if (editBeurteilung != null) {
+//            editBeurteilung.setHorizontallyScrolling(false)
+//            editBeurteilung.setMaxLines(20)
+//        }
+//        if (editNotiz != null) {
+//            editNotiz.setHorizontallyScrolling(false)
+//            editNotiz.setMaxLines(20)
+//        }
+//        if (editBildbeschreibung != null) {
+//            editBildbeschreibung.setHorizontallyScrolling(false)
+//            editBildbeschreibung.setMaxLines(10)
+//        }
+//
+//        if (edit_Beschreibung != null) {
+//            edit_Beschreibung.setHorizontallyScrolling(false)
+//        }
+        editBeschreibung.setOnClickListener {
+            editDialog(editBeschreibung, EDIT_TEXT)
         }
-        if (editBeurteilung != null) {
-            editBeurteilung.setHorizontallyScrolling(false)
-            editBeurteilung.setMaxLines(20)
+        editDate.setOnClickListener {
+            editDialog(editDate, EDIT_DATE)
         }
-        if (editNotiz != null) {
-            editNotiz.setHorizontallyScrolling(false)
-            editNotiz.setMaxLines(20)
+        editAblageort.setOnClickListener {
+            editDialog(editAblageort, EDIT_TEXT)
         }
-        if (editBildbeschreibung != null) {
-            editBildbeschreibung.setHorizontallyScrolling(false)
-            editBildbeschreibung.setMaxLines(10)
+        editBeurteilung.setOnClickListener {
+            editDialog(editBeurteilung, EDIT_TEXT)
+        }
+        editNotiz.setOnClickListener {
+            editDialog(editNotiz, EDIT_TEXT)
         }
 
-        if (edit_Beschreibung != null) {
-            edit_Beschreibung.setHorizontallyScrolling(false)
-        }
 
         //setting up the spinner as a dropdown menu, items of the dropdown menu defined n values dropdown
         val spinner = findViewById<Spinner>(R.id.spinner)
@@ -205,17 +226,17 @@ class NewListItem : AppCompatActivity() {
 
             val dateFormatted = objectClass!!.date?.format(formatter)
             edit_Date.setText(dateFormatted.toString())
-            favorites=objectClass.favorites
+            favorites = objectClass.favorites
             edit_Ablageort.setText(objectClass!!.storage)
             edit_Beurteilung.setText(objectClass!!.evaluation)
             edit_Notiz.setText(objectClass!!.note)
 
-            //loading the image from file
-            if (objectClass.image != null) {
-                currentPhotoPath = objectClass.image
-                val currentImage = BitmapFactory.decodeFile(objectClass.image)
-                imageView.setImageBitmap(currentImage)
-            }
+            //TODO: loading the image from file
+//            if (objectClass.image != null) {
+//                currentPhotoPath = objectClass.image
+//                val currentImage = BitmapFactory.decodeFile(objectClass.image)
+//                imageView.setImageBitmap(currentImage)
+//            }
 
             val current_position = objectClass.type!!
             spinner.setSelection(current_position)
@@ -241,9 +262,35 @@ class NewListItem : AppCompatActivity() {
             val storageData = edit_Ablageort.text.toString()
             val evaluationData = edit_Beurteilung.text.toString()
             val noteData = edit_Notiz.text.toString()
-            val favoritesOut= favorites
-            //formating date to Date object
+            val favoritesOut = favorites
 
+            //check description
+            if (nameExamination!="") {
+                //do nothing and continue
+            }else{
+                Toast.makeText(
+                    this@NewListItem,
+                    "Bitte geben sie eine Beschreibung ein",
+                    Toast.LENGTH_LONG
+                ).show()
+                return@setOnClickListener
+
+            }
+            //check if datefield is entered correctly
+            if (dateExamination.matches("^\\d{2}[/]\\d{2}[/]\\d{4}$".toRegex())){
+                //do nothing and continue
+            }else{
+                Toast.makeText(
+                    this@NewListItem,
+                    "Bitte geben sie ein valides Datum im Format dd/mm/yyyy ein",
+                    Toast.LENGTH_LONG
+                ).show()
+                return@setOnClickListener
+            }
+
+            //check if description is entered
+
+            //formating date to Date object
             var date = LocalDate.parse(dateExamination, formatter)
 
             //the values of the different input fields of the editing Activation gets returned to the MainActivity attached to the intent
@@ -255,6 +302,7 @@ class NewListItem : AppCompatActivity() {
                 evaluationData,
                 noteData,
                 currentPhotoPath,
+                currentPhotoDescription,
                 favoritesOut
             )
             val okIntent = Intent(this, MainActivity::class.java)
@@ -284,41 +332,49 @@ class NewListItem : AppCompatActivity() {
             else {
                 //telling the main activity to delete the listView item
                 deleteIntent.putExtra("position", position)
-                //delete the image file
-                val path = Paths.get(currentPhotoPath)
-                if (path.delete()) {
-                    println("Deketed ${path.fileName}")
-                } else {
-                    println("Could not delete ${path.fileName}")
-                }
+                //TODO: delete the image file
+//                val path = Paths.get(currentPhotoPath)
+//                if (path.delete()) {
+//                    println("Deleted ${path.fileName}")
+//                } else {
+//                    println("Could not delete ${path.fileName}")
+//                }
                 setResult(Activity.RESULT_FIRST_USER, deleteIntent)
                 finish()
             }
         }
 
         //when the photo Button is clicked
-        photoButton.setOnClickListener {
+//        photoButton.setOnClickListener {
+//
+//            //check permissions
+//            if (hasNoPermissions()) {
+//                requestPermission()
+//            }
+//
+//            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+//            val photoFile = createImageFile()
+//            //creating the Uri necessary for SDK 29 up
+//            val fileProvider =
+//                FileProvider.getUriForFile(this, "com.example.radioapp.fileprovider", photoFile)
+//            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
+//
+//            //starting the camera activity with check if it is possible
+//            if (takePictureIntent.resolveActivity(packageManager) != null) {
+//                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO)
+//            } else {
+//                Toast.makeText(this, "Unable to open camera", Toast.LENGTH_SHORT).show()
+//            }
+//
+//
+//        }
+//
+        photoButton.setOnClickListener{
+            val intent = Intent(this, CameraActivity::class.java)
 
-            //check permissions
-            if (hasNoPermissions()) {
-                requestPermission()
-            }
-
-            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            val photoFile = createImageFile()
-            //creating the Uri necessary for SDK 29 up
-            val fileProvider =
-                FileProvider.getUriForFile(this, "com.example.radioapp.fileprovider", photoFile)
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
-
-            //starting the camera activity with check if it is possible
-            if (takePictureIntent.resolveActivity(packageManager) != null) {
-                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO)
-            } else {
-                Toast.makeText(this, "Unable to open camera", Toast.LENGTH_SHORT).show()
-            }
-
-
+            currentPhotoDescription.let { it1 -> intent.putExtraJson("dataDesciption", it1) }
+            currentPhotoPath.let { it1 -> intent.putExtraJson("dataImage", it1) }
+            startActivityForResult(intent, REQUEST_IMAGE_EDITOR)
         }
 
 
@@ -336,31 +392,113 @@ class NewListItem : AppCompatActivity() {
                 }
             }
         }
+
+        val bottomSheet = findViewById<TextView>(R.id.text_image)
+        bottomSheet.setOnClickListener {
+            editDialog(bottomSheet, EDIT_TEXT)
+        }
     }
 
-//    //TODO: function to check a TextViews for keys in mykeymap, and then setting them to clickable
+    /**
+     * Method to call a sheet Dialog to enter/ edit the text of a clickable text field
+     */
+    private fun editDialog(target: TextView, flag: Int) {
+
+        val bottomSheetDialog = BottomSheetDialog(this)
+        bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog)
+        bottomSheetDialog.setCanceledOnTouchOutside(true)
+
+        val inputMethodManager: InputMethodManager = this.getSystemService(
+            INPUT_METHOD_SERVICE
+        ) as InputMethodManager
+
+        val text = bottomSheetDialog.findViewById<TextView>(R.id.editTextTextPersonName)
+        val next = bottomSheetDialog.findViewById<ImageButton>(R.id.imageButton)
+        val hint = bottomSheetDialog.findViewById<TextView>(R.id.textHint)
+        //showing the hin of the TextView
+        hint!!.text = target.hint
+
+        if (text != null) {
+            text.text = target.text.toString()
+            if (flag == EDIT_DATE) {
+                text.inputType = InputType.TYPE_CLASS_DATETIME
+            }
+
+            text.isFocusableInTouchMode = true
+            text.requestFocus()
+            text.requestFocusFromTouch()
+
+            //force to show the keyboard
+            inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY)
+        }
+        bottomSheetDialog.show()
+
+        //closing the sheetDialog and setting th TextView Text to edited Text
+        if (next != null) {
+
+            next.setOnClickListener {
+                if (flag == EDIT_DATE) {
+                    val textToCheck = text!!.text.toString()
+                    if (textToCheck.matches("^\\d{2}[/]\\d{2}[/]\\d{4}$".toRegex())) {
+                        target.text = text!!.text.toString()
+                        //force hide the keyboard
+                        inputMethodManager.hideSoftInputFromWindow(text.windowToken,0)
+                        bottomSheetDialog.dismiss()
+                    } else {
+                        Toast.makeText(
+                            this@NewListItem,
+                            "Bitte geben sie ein valides Datum im Format dd/mm/yyyy ein",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        bottomSheetDialog.show()
+                    }
+
+                } else if (flag == EDIT_TEXT) {
+                    target.text = text!!.text.toString()
+                    //force hide the keyboard
+                    inputMethodManager.hideSoftInputFromWindow(text.windowToken,0)
+                    bottomSheetDialog.dismiss()
+                }
+            }
+
+
+        }
+
+
+    }
+
+
     //method to check the TextView Items for key words.
-    fun checkKeyWords(target:TextView, thisStringMap: MutableMap<String,String>,array: MutableList<Any>){
-        val sentenceString=target.text.toString()
+    fun checkKeyWords(
+        target: TextView,
+        thisStringMap: MutableMap<String, String>,
+        array: MutableList<Any>
+    ) {
+        val sentenceString = target.text.toString()
         val spanString = SpannableString(sentenceString)
-        val sentenceWords= sentenceString.replace('\n', ' ').split(" ")
+        val sentenceWords = sentenceString.replace('\n', ' ').split(" ")
 
 
-        for (word in sentenceWords){
-            if (thisStringMap.containsKey(word)){
-                val startIndex=sentenceString.indexOf(word,0)
-                val stopIndex=startIndex+word.length
+        for (word in sentenceWords) {
+            if (thisStringMap.containsKey(word)) {
+                val startIndex = sentenceString.indexOf(word, 0)
+                val stopIndex = startIndex + word.length
 
-                val clickableSpan= object : ClickableSpan() {
+                val clickableSpan = object : ClickableSpan() {
                     @Override
                     override fun onClick(p0: View) {
                         //Do nothing
-                        val message=thisStringMap.getValue(word)
+                        val message = thisStringMap.getValue(word)
                         Toast.makeText(this@NewListItem, message, Toast.LENGTH_SHORT).show()
                     }
                 }
 
-                spanString.setSpan(clickableSpan,startIndex,stopIndex, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+                spanString.setSpan(
+                    clickableSpan,
+                    startIndex,
+                    stopIndex,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
 
 
             }
@@ -382,37 +520,37 @@ class NewListItem : AppCompatActivity() {
     /**
      * method to display and set up tp the pathname for the image taken by the camera
      */
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_TAKE_PHOTO && resultCode == Activity.RESULT_OK) {
-            //val takenImage = data?.extras?.get("data") as Bitmap
-            val takenImage = BitmapFactory.decodeFile(currentPhotoPath)
-            imageView.setImageBitmap(takenImage)
-        } else {
-            super.onActivityResult(requestCode, resultCode, data)
-        }
-        onRestart()
-    }
+//
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        if (requestCode == REQUEST_TAKE_PHOTO && resultCode == Activity.RESULT_OK) {
+//            //val takenImage = data?.extras?.get("data") as Bitmap
+//            val takenImage = BitmapFactory.decodeFile(currentPhotoPath)
+//            imageView.setImageBitmap(takenImage)
+//        } else {
+//            super.onActivityResult(requestCode, resultCode, data)
+//        }
+//        onRestart()
+//    }
 
 
     /**
      * creating a unique path name for the photo app and save it in currentPhotoPath
      */
 
-    @Throws(IOException::class)
-    private fun createImageFile(): File {
-        // Create an image file name
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        return File.createTempFile(
-            "JPEG_${timeStamp}_", /* prefix */
-            ".jpg", /* suffix */
-            storageDir /* directory */
-        ).apply {
-            // Save a file: path for use with ACTION_VIEW intents
-            currentPhotoPath = absolutePath
-        }
-    }
+//    @Throws(IOException::class)
+//    private fun createImageFile(): File {
+//        // Create an image file name
+//        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+//        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+//        return File.createTempFile(
+//            "JPEG_${timeStamp}_", /* prefix */
+//            ".jpg", /* suffix */
+//            storageDir /* directory */
+//        ).apply {
+//            // Save a file: path for use with ACTION_VIEW intents
+//            currentPhotoPath = absolutePath
+//        }
+//    }
 
 
 }

@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
         val favoriteButton = findViewById<ImageButton>(R.id.favorite_Button)
         val sortButton = findViewById<ImageButton>(R.id.sort_Button)
         //toggle value for the favorite Button to toggle bettwen date and favorite
-        val toggle = false
+        var toggle = false
 
         //requesting the permission at runtime
         if (hasNoPermissions()){
@@ -161,14 +161,15 @@ class MainActivity : AppCompatActivity() {
         favoriteButton.setOnClickListener{
             if (toggle==false){
                 adapter.sort(compareByDescending({it.favorites}))
+                toggle=true
             }else{
-                adapter.sort(compareBy({it.date}))
+                adapter.sort(compareByDescending({it.date}))
                 }
         }
 
         //sortFunction
         sortButton.setOnClickListener{
-                adapter.sort(compareBy({it.date}))
+                adapter.sort(compareByDescending({it.date}))
         }
 
     }

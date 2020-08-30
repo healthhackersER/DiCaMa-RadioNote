@@ -23,7 +23,7 @@ class AdapterClass (context: Context, private val layoutResource: Int,
     private val inflater: LayoutInflater
             = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     @RequiresApi(Build.VERSION_CODES.O)
-    var formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+    var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
     override fun getCount(): Int {
         return dataSource.size
@@ -67,10 +67,11 @@ class AdapterClass (context: Context, private val layoutResource: Int,
         detailTextView.text= object_item.date?.format(formatter).toString()
         var dropdownStringArray= context.resources.getStringArray(R.array.type_array)
         subtitleTextView.text=dropdownStringArray[object_item.type!!].toString()
-        if (object_item.image!=null){
-            val currentImage = BitmapFactory.decodeFile(object_item.image)
-            thumbnailImageView.setImageBitmap(currentImage)
-        }
+//       //TODO loadimagesfiles
+//        if (object_item.image!=null){
+//            val currentImage = BitmapFactory.decodeFile(object_item.image)
+//            thumbnailImageView.setImageBitmap(currentImage)
+//        }
         //setting the checkbox from saved object
         checkbox.isChecked = object_item.favorites
         checkbox.setOnClickListener{
