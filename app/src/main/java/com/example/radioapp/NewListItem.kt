@@ -40,25 +40,6 @@ import java.util.*
 
 
 /**
- * Help functions to properly delete a file
- */
-private fun Path.exists(): Boolean = Files.exists(this)
-
-//wraps file directory
-private fun Path.isFile(): Boolean = !Files.isDirectory(this)
-
-//file delete function
-private fun Path.delete(): Boolean {
-    return if (isFile() && exists()) {
-        //Actual delete operation
-        Files.delete(this)
-        true
-    } else {
-        false
-    }
-}
-
-/**
  * Help function to parse a string array
  */
 fun parseStringArray(stringArrayResourceId: Int, context: Context): MutableMap<String, String> {
@@ -151,27 +132,6 @@ class NewListItem : AppCompatActivity() {
         //random listView position initialization to make it none null
         var position: Int = 505
 
-        //reformating the different text input fields to multiline but still enabeling the done button on touch keyboard
-//        if (editAblageort != null) {
-//            editAblageort.setHorizontallyScrolling(false)
-//            editAblageort.setMaxLines(20)
-//        }
-//        if (editBeurteilung != null) {
-//            editBeurteilung.setHorizontallyScrolling(false)
-//            editBeurteilung.setMaxLines(20)
-//        }
-//        if (editNotiz != null) {
-//            editNotiz.setHorizontallyScrolling(false)
-//            editNotiz.setMaxLines(20)
-//        }
-//        if (editBildbeschreibung != null) {
-//            editBildbeschreibung.setHorizontallyScrolling(false)
-//            editBildbeschreibung.setMaxLines(10)
-//        }
-//
-//        if (edit_Beschreibung != null) {
-//            edit_Beschreibung.setHorizontallyScrolling(false)
-//        }
         editBeschreibung.setOnClickListener {
             editDialog(editBeschreibung, EDIT_TEXT)
         }
@@ -230,13 +190,11 @@ class NewListItem : AppCompatActivity() {
             edit_Ablageort.setText(objectClass!!.storage)
             edit_Beurteilung.setText(objectClass!!.evaluation)
             edit_Notiz.setText(objectClass!!.note)
+            currentPhotoPath = objectClass.image!!
+            currentPhotoDescription = objectClass.imageDescription!!
+            val currentImage = BitmapFactory.decodeFile(objectClass.image[0])
+            imageView.setImageBitmap(currentImage)
 
-            //TODO: loading the image from file
-//            if (objectClass.image != null) {
-//                currentPhotoPath = objectClass.image
-//                val currentImage = BitmapFactory.decodeFile(objectClass.image)
-//                imageView.setImageBitmap(currentImage)
-//            }
 
             val current_position = objectClass.type!!
             spinner.setSelection(current_position)
@@ -249,8 +207,6 @@ class NewListItem : AppCompatActivity() {
         if (purpose == "new") {
             //do nothing
         }
-
-        //to deselect all items at start
 
 
         /**
@@ -265,9 +221,9 @@ class NewListItem : AppCompatActivity() {
             val favoritesOut = favorites
 
             //check description
-            if (nameExamination!="") {
+            if (nameExamination != "") {
                 //do nothing and continue
-            }else{
+            } else {
                 Toast.makeText(
                     this@NewListItem,
                     "Bitte geben sie eine Beschreibung ein",
@@ -277,9 +233,9 @@ class NewListItem : AppCompatActivity() {
 
             }
             //check if datefield is entered correctly
-            if (dateExamination.matches("^\\d{2}[/]\\d{2}[/]\\d{4}$".toRegex())){
+            if (dateExamination.matches("^\\d{2}[/]\\d{2}[/]\\d{4}$".toRegex())) {
                 //do nothing and continue
-            }else{
+            } else {
                 Toast.makeText(
                     this@NewListItem,
                     "Bitte geben sie ein valides Datum im Format dd/mm/yyyy ein",
@@ -339,41 +295,18 @@ class NewListItem : AppCompatActivity() {
 //                } else {
 //                    println("Could not delete ${path.fileName}")
 //                }
+
                 setResult(Activity.RESULT_FIRST_USER, deleteIntent)
                 finish()
             }
         }
 
-        //when the photo Button is clicked
-//        photoButton.setOnClickListener {
 //
-//            //check permissions
-//            if (hasNoPermissions()) {
-//                requestPermission()
-//            }
-//
-//            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-//            val photoFile = createImageFile()
-//            //creating the Uri necessary for SDK 29 up
-//            val fileProvider =
-//                FileProvider.getUriForFile(this, "com.example.radioapp.fileprovider", photoFile)
-//            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
-//
-//            //starting the camera activity with check if it is possible
-//            if (takePictureIntent.resolveActivity(packageManager) != null) {
-//                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO)
-//            } else {
-//                Toast.makeText(this, "Unable to open camera", Toast.LENGTH_SHORT).show()
-//            }
-//
-//
-//        }
-//
-        photoButton.setOnClickListener{
+        photoButton.setOnClickListener {
             val intent = Intent(this, CameraActivity::class.java)
 
-            currentPhotoDescription.let { it1 -> intent.putExtraJson("dataDesciption", it1) }
-            currentPhotoPath.let { it1 -> intent.putExtraJson("dataImage", it1) }
+            currentPhotoDescription.let { it1 -> intent.putExtraJson("dataDescription", it1) }
+            currentPhotoPath.let { it1 -> intent.putExtraJson("dataImages", it1) }
             startActivityForResult(intent, REQUEST_IMAGE_EDITOR)
         }
 
@@ -393,10 +326,10 @@ class NewListItem : AppCompatActivity() {
             }
         }
 
-        val bottomSheet = findViewById<TextView>(R.id.text_image)
-        bottomSheet.setOnClickListener {
-            editDialog(bottomSheet, EDIT_TEXT)
-        }
+//        val bottomSheet = findViewById<TextView>(R.id.text_image)
+//        bottomSheet.setOnClickListener {
+//            editDialog(bottomSheet, EDIT_TEXT)
+//        }
     }
 
     /**
@@ -429,7 +362,10 @@ class NewListItem : AppCompatActivity() {
             text.requestFocusFromTouch()
 
             //force to show the keyboard
-            inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY)
+            inputMethodManager.toggleSoftInput(
+                InputMethodManager.SHOW_FORCED,
+                InputMethodManager.HIDE_IMPLICIT_ONLY
+            )
         }
         bottomSheetDialog.show()
 
@@ -442,7 +378,7 @@ class NewListItem : AppCompatActivity() {
                     if (textToCheck.matches("^\\d{2}[/]\\d{2}[/]\\d{4}$".toRegex())) {
                         target.text = text!!.text.toString()
                         //force hide the keyboard
-                        inputMethodManager.hideSoftInputFromWindow(text.windowToken,0)
+                        inputMethodManager.hideSoftInputFromWindow(text.windowToken, 0)
                         bottomSheetDialog.dismiss()
                     } else {
                         Toast.makeText(
@@ -456,7 +392,7 @@ class NewListItem : AppCompatActivity() {
                 } else if (flag == EDIT_TEXT) {
                     target.text = text!!.text.toString()
                     //force hide the keyboard
-                    inputMethodManager.hideSoftInputFromWindow(text.windowToken,0)
+                    inputMethodManager.hideSoftInputFromWindow(text.windowToken, 0)
                     bottomSheetDialog.dismiss()
                 }
             }
@@ -520,37 +456,27 @@ class NewListItem : AppCompatActivity() {
     /**
      * method to display and set up tp the pathname for the image taken by the camera
      */
-//
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        if (requestCode == REQUEST_TAKE_PHOTO && resultCode == Activity.RESULT_OK) {
-//            //val takenImage = data?.extras?.get("data") as Bitmap
-//            val takenImage = BitmapFactory.decodeFile(currentPhotoPath)
-//            imageView.setImageBitmap(takenImage)
-//        } else {
-//            super.onActivityResult(requestCode, resultCode, data)
-//        }
-//        onRestart()
-//    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_IMAGE_EDITOR && resultCode == Activity.RESULT_OK) {
+            currentPhotoPath =
+                data!!.getJsonExtra("dataImage", MutableList::class.java) as MutableList<String>
+            currentPhotoDescription = data!!.getJsonExtra(
+                "dataDescription",
+                MutableList::class.java
+            ) as MutableList<String>
+            if (currentPhotoPath.size >= 1) {
+                val takenImage = BitmapFactory.decodeFile(currentPhotoPath[0])
+                imageView.setImageBitmap(takenImage)
+            }
+
+        } else {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
+        onRestart()
+    }
 
 
-    /**
-     * creating a unique path name for the photo app and save it in currentPhotoPath
-     */
 
-//    @Throws(IOException::class)
-//    private fun createImageFile(): File {
-//        // Create an image file name
-//        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-//        val storageDir: File? = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-//        return File.createTempFile(
-//            "JPEG_${timeStamp}_", /* prefix */
-//            ".jpg", /* suffix */
-//            storageDir /* directory */
-//        ).apply {
-//            // Save a file: path for use with ACTION_VIEW intents
-//            currentPhotoPath = absolutePath
-//        }
-//    }
 
 
 }

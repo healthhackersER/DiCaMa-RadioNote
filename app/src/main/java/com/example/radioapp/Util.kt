@@ -17,7 +17,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 /**
- * following code implements a variable and method to check for the required permissions on runtime
+ * following are help functions which are used throught the project
  */
 val permissions = arrayOf(
     android.Manifest.permission.CAMERA,
@@ -43,6 +43,7 @@ fun requestPermission(context: Context) {
     ActivityCompat.requestPermissions(context as Activity, permissions, 0)
 }
 
+//creates a unique pathname for the image files
 @RequiresApi(Build.VERSION_CODES.N)
 @Throws(IOException::class)
 fun createImageFile(context:Context): File {
@@ -53,8 +54,23 @@ fun createImageFile(context:Context): File {
         "JPEG_${timeStamp}_", /* prefix */
         ".jpg", /* suffix */
         storageDir /* directory */)
-//    ).apply {
-//        // Save a file: path for use with ACTION_VIEW intents
-//        path = absolutePath
-//    }
+}
+
+//methods to safely delete a file
+@RequiresApi(Build.VERSION_CODES.O)
+fun Path.exists(): Boolean = Files.exists(this)
+
+//wraps file directory
+@RequiresApi(Build.VERSION_CODES.O)
+fun Path.isFile(): Boolean = !Files.isDirectory(this)
+
+//file delete function
+fun Path.delete(): Boolean {
+    return if (isFile() && exists()) {
+        //Actual delete operation
+        Files.delete(this)
+        true
+    } else {
+        false
+    }
 }

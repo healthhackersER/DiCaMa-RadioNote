@@ -8,28 +8,47 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class RecyclerAdapter(private var images: MutableList<String>, private var text: MutableList<String>):
+class RecyclerAdapter(private var images: MutableList<String>, private var text: MutableList<String>, private val listener: OnItemClickListener):
 RecyclerView.Adapter<RecyclerAdapter.ViewHolder>(){
-    inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
+    inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView), View.OnClickListener{
         val itemImage: ImageView = itemView.findViewById(R.id.iv_image)
-        val itemDescription: TextView = itemView.findViewById(R.id.iv_description)
 
 
+        init {
+            itemView.setOnClickListener(this)
+        }
+
+        override fun onClick(p0: View?) {
+            val position = adapterPosition
+            if (position != RecyclerView.NO_POSITION) {
+                listener.onItemClick(position)
+            }
+
+        }
     }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
         val v = LayoutInflater.from(parent.context).inflate(R.layout.recycler_view_item,parent,false)
         return ViewHolder(v)
+
     }
+
+
 
     override fun getItemCount(): Int {
         return images.size
     }
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.itemDescription.text=text[position]
+
+
         val currentImage = BitmapFactory.decodeFile(images[position])
         holder.itemImage.setImageBitmap(currentImage)
+    }
+
+    interface OnItemClickListener{
+        fun onItemClick(position: Int)
     }
 }
 

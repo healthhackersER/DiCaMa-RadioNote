@@ -17,11 +17,14 @@ import java.time.format.DateTimeFormatter
  * this adapter class disyplays the list items in the listView with thumbnail image, description, date, and type
  *
  */
-class AdapterClass (context: Context, private val layoutResource: Int,
-                                        private val dataSource: MutableList<ObjectClass>) : ArrayAdapter<ObjectClass>(context,layoutResource,dataSource) {
+class AdapterClass(
+    context: Context, private val layoutResource: Int,
+    private val dataSource: MutableList<ObjectClass>
+) : ArrayAdapter<ObjectClass>(context, layoutResource, dataSource) {
 
-    private val inflater: LayoutInflater
-            = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private val inflater: LayoutInflater =
+        context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+
     @RequiresApi(Build.VERSION_CODES.O)
     var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
@@ -60,26 +63,24 @@ class AdapterClass (context: Context, private val layoutResource: Int,
         val checkbox = rowView.findViewById(R.id.checkBox) as CheckBox
 
 
-
 // getting the data from the different listView items and setting them to the view
         var object_item = getItem(position) as ObjectClass
-        titleTextView.text=object_item.examination
-        detailTextView.text= object_item.date?.format(formatter).toString()
-        var dropdownStringArray= context.resources.getStringArray(R.array.type_array)
-        subtitleTextView.text=dropdownStringArray[object_item.type!!].toString()
-//       //TODO loadimagesfiles
-//        if (object_item.image!=null){
-//            val currentImage = BitmapFactory.decodeFile(object_item.image)
-//            thumbnailImageView.setImageBitmap(currentImage)
-//        }
+        titleTextView.text = object_item.examination
+        detailTextView.text = object_item.date?.format(formatter).toString()
+        var dropdownStringArray = context.resources.getStringArray(R.array.type_array)
+        subtitleTextView.text = dropdownStringArray[object_item.type!!].toString()
+
+        val currentImage = BitmapFactory.decodeFile(object_item.image!![0])
+        thumbnailImageView.setImageBitmap(currentImage)
+
         //setting the checkbox from saved object
         checkbox.isChecked = object_item.favorites
-        checkbox.setOnClickListener{
-            object_item.favorites=checkbox.isChecked
+        checkbox.setOnClickListener {
+            object_item.favorites = checkbox.isChecked
         }
 
         return rowView
-        }
-
-
     }
+
+
+}
