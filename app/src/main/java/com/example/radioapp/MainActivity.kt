@@ -6,8 +6,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.AbsListView.CHOICE_MODE_SINGLE
-import android.widget.ImageButton
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import java.io.File
 import android.content.Context
@@ -15,13 +13,13 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
 import android.text.method.TextKeyListener.clear
+import android.widget.*
 import android.widget.AbsListView.CHOICE_MODE_MULTIPLE
-import android.widget.ArrayAdapter
-import android.widget.Button
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
@@ -94,6 +92,8 @@ class MainActivity : AppCompatActivity() {
 
         //toggle value for the favorite Button to toggle bettwen date and favorite
         var toggle = false
+        shareButton.visibility=View.INVISIBLE
+        deleteButton.visibility=View.INVISIBLE
 
         //requesting the permission at runtime
         if (hasNoPermissions()) {
@@ -110,6 +110,7 @@ class MainActivity : AppCompatActivity() {
         val listView: android.widget.ListView = findViewById(R.id.listview_1)
         listView.itemsCanFocus = true
         listView.adapter = adapter
+        listView.choiceMode= ListView.CHOICE_MODE_SINGLE
 
         // opening the editing Activity when a click is performed on an existing listView Item
         listView.setOnItemClickListener { parent, view, position, id ->
@@ -126,10 +127,18 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-        //TODO: what happens when a long click is performed on an item (deleting, sharing)
+
         listView.setOnItemLongClickListener { parent, view, position, id ->
             Toast.makeText(this, "Position Clicked:" + " " + position, Toast.LENGTH_SHORT).show()
-            listView.setItemChecked(position, true)
+            if(listView.isItemChecked(position)){
+                listView.setItemChecked(position, false)
+                shareButton.visibility=View.INVISIBLE
+                deleteButton.visibility=View.INVISIBLE
+            }else {
+                listView.setItemChecked(position, true)
+                shareButton.visibility = View.VISIBLE
+                deleteButton.visibility = View.VISIBLE
+            }
 
             return@setOnItemLongClickListener (true)
         }

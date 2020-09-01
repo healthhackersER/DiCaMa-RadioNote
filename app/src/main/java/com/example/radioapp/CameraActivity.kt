@@ -1,12 +1,17 @@
 package com.example.radioapp
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.graphics.PointF
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
+import android.view.MotionEvent
 import android.view.View
+import android.view.View.OnTouchListener
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.ImageButton
@@ -15,12 +20,14 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.recyclerview.selection.SelectionPredicates
+import androidx.recyclerview.selection.SelectionTracker
+import androidx.recyclerview.selection.StorageStrategy
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.android.synthetic.main.activity_camera.*
-import kotlin.properties.Delegates
 
 /**
  * Camera Activity to open up a camera Dialogue to make multiple editable cameras
@@ -33,6 +40,29 @@ class CameraActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickListener 
     private lateinit var currentPhotoImages: MutableList<String>
     private lateinit var currentPhotoDescription: MutableList<String>
     private var currentPosition = -1
+    private var tracker: SelectionTracker<Long>? = null
+
+    // class member variable to save the X,Y coordinates
+    private var lastTouchDownXY: FloatArray? = FloatArray(2)
+
+    @SuppressLint("ClickableViewAccessibility")
+    var touchListener = OnTouchListener { v, event ->
+        if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+            lastTouchDownXY!![0]= event.x
+            lastTouchDownXY!![1] = event.y
+        }
+
+
+        return@OnTouchListener false
+    }
+
+    var clickListener: View.OnClickListener = View.OnClickListener { // retrieve the stored coordinates
+        val x = lastTouchDownXY!![0]
+        val y = lastTouchDownXY!![1]
+
+        // use the coordinates for whatever
+        big_imageView.setPin(PointF(x, y))
+    }
 
 
     @RequiresApi(Build.VERSION_CODES.N)
@@ -64,6 +94,20 @@ class CameraActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickListener 
         )
         recyclerView.adapter=adapter
 
+        tracker = SelectionTracker.Builder<Long>(
+            "mySelection",
+            recyclerView,
+            MyItemKeyProvider(recyclerView),
+            MyItemDetailsLookup(recyclerView),
+            StorageStrategy.createLongStorage()
+        ).withSelectionPredicate(
+            SelectionPredicates.createSelectSingleAnything()
+        ).build()
+
+        adapter.tracker = tracker
+
+        recyclerView.adapter=adapter
+
         //setting up on first image display
         if (currentPhotoImages.size>=1){
             currentPosition=0
@@ -71,6 +115,12 @@ class CameraActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickListener 
             big_imageView.setImage(ImageSource.bitmap(currentImage))
             edit_text_Bildbeschreibung.text=currentPhotoDescription[0]
         }
+
+        big_imageView.setOnTouchListener(touchListener);
+        big_imageView.setOnClickListener(clickListener);
+
+
+
         //taking a new image
         photoButton.setOnClickListener {
 
@@ -113,6 +163,8 @@ class CameraActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickListener 
 
 
 
+
+
     }
 
     override fun onItemClick(position: Int) {
@@ -125,15 +177,18 @@ class CameraActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickListener 
 
 
 
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == NewListItem.REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             //val takenImage = data?.extras?.get("data") as Bitmap
+           //setting the current imageview and desciption o new item
             val takenImage = BitmapFactory.decodeFile(currentImagePath)
             big_imageView.setImage(ImageSource.bitmap(takenImage))
             currentPhotoImages.add(currentImagePath)
             currentPhotoDescription.add("")
+            edit_text_Bildbeschreibung.text=""
             currentPosition=currentPhotoDescription.size-1
             adapter.notifyDataSetChanged()
         } else {
@@ -180,18 +235,18 @@ class CameraActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickListener 
             next.setOnClickListener {
 
 
-                    target.text = text!!.text.toString()
-                    //force hide the keyboard
-                    inputMethodManager.hideSoftInputFromWindow(text.windowToken, 0)
-                    if (currentPosition != -1){
+                target.text = text!!.text.toString()
+                //force hide the keyboard
+                inputMethodManager.hideSoftInputFromWindow(text.windowToken, 0)
+                if (currentPosition != -1){
                         currentPhotoDescription[currentPosition]= text!!.text.toString()
-                    }
-                    bottomSheetDialog.dismiss()
                 }
+                bottomSheetDialog.dismiss()
             }
-
-
         }
+
+
+    }
 
 
 }

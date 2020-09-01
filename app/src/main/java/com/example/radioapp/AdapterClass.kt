@@ -70,8 +70,10 @@ class AdapterClass(
         var dropdownStringArray = context.resources.getStringArray(R.array.type_array)
         subtitleTextView.text = dropdownStringArray[object_item.type!!].toString()
 
-        val currentImage = BitmapFactory.decodeFile(object_item.image!![0])
-        thumbnailImageView.setImageBitmap(currentImage)
+        if (object_item.image!!.size>=1) {
+            val currentImage = BitmapFactory.decodeFile(object_item.image!![0])
+            thumbnailImageView.setImageBitmap(currentImage)
+        }
 
         //setting the checkbox from saved object
         checkbox.isChecked = object_item.favorites
