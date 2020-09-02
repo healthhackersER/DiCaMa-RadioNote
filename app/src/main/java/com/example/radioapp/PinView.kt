@@ -22,9 +22,10 @@ class PinView @JvmOverloads constructor(context: Context?, attr: AttributeSet? =
     private fun initialise() {
         val density = resources.displayMetrics.densityDpi.toFloat()
         pin = BitmapFactory.decodeResource(this.resources, R.drawable.pushpin_blue)
-//        val w = density / 420f * pin.getWidth()
-//        val h = density / 420f * pin.getHeight()
-//        pin = Bitmap.createScaledBitmap(pin, w.toInt(), h.toInt(), true)
+        var localPin=pin!!
+        val w = (density / 420f * localPin.width)/4
+        val h = (density / 420f * localPin.height)/4
+        pin = Bitmap.createScaledBitmap(localPin, w.toInt(), h.toInt(), true)
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -38,7 +39,7 @@ class PinView @JvmOverloads constructor(context: Context?, attr: AttributeSet? =
         if (sPin != null && pin != null) {
             sourceToViewCoord(sPin, vPin)
             val vX = vPin.x - pin!!.width / 2
-            val vY = vPin.y - pin!!.height
+            val vY = vPin.y + pin!!.height
             canvas.drawBitmap(pin!!, vX, vY, paint)
         }
     }

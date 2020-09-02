@@ -6,14 +6,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
-import android.icu.text.SimpleDateFormat
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.provider.MediaStore
 import android.text.InputType
-import android.text.InputType.TYPE_CLASS_TEXT
-import android.text.InputType.TYPE_DATETIME_VARIATION_TIME
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
@@ -26,17 +22,12 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.android.synthetic.main.activity_new_list_item.*
 import java.io.File
-import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
+import java.lang.Exception
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.*
 
 
 /**
@@ -59,9 +50,10 @@ class NewListItem : AppCompatActivity() {
     //variable for the pathname of the photo taken by the camera activity, needs to be declared here in order for all class function to be able to access it
     var currentPhotoPath: MutableList<String> = mutableListOf<String>()
     var currentPhotoDescription: MutableList<String> = mutableListOf()
+    var currentMarker: MutableList<FloatArray> = mutableListOf()
 
     @RequiresApi(Build.VERSION_CODES.O)
-    var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+    var formatter: DateTimeFormatter? = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
 
     companion object {
@@ -178,7 +170,7 @@ class NewListItem : AppCompatActivity() {
          * if an existing item was clicked
          */
         if (purpose == "editing") {
-            val objectClass = intent.getJsonExtra("data", ObjectClass::class.java)
+            val objectClass = intent.getJsonExtra("data", RadFileDataClass::class.java)
             position = intent.getIntExtra("position", 0)
 
             //loading the data from the data object
@@ -190,14 +182,15 @@ class NewListItem : AppCompatActivity() {
             edit_Ablageort.setText(objectClass!!.storage)
             edit_Beurteilung.setText(objectClass!!.evaluation)
             edit_Notiz.setText(objectClass!!.note)
-            currentPhotoPath = objectClass.image!!
-            currentPhotoDescription = objectClass.imageDescription!!
-            val currentImage = BitmapFactory.decodeFile(objectClass.image[0])
+            currentPhotoPath = objectClass.image.imageFiles!!
+            currentPhotoDescription = objectClass.image.imageDescription!!
+            currentMarker=objectClass.image.marker!!
+            val currentImage = BitmapFactory.decodeFile(objectClass.image.imageFiles[0])
             imageView.setImageBitmap(currentImage)
 
 
-            val current_position = objectClass.type!!
-            spinner.setSelection(current_position)
+            val currentPosition = objectClass.type!!
+            spinner.setSelection(currentPosition)
 
             checkKeyWords(edit_Beurteilung, myStringMap, clickList)
         }
@@ -250,17 +243,17 @@ class NewListItem : AppCompatActivity() {
             var date = LocalDate.parse(dateExamination, formatter)
 
             //the values of the different input fields of the editing Activation gets returned to the MainActivity attached to the intent
-            val testValue: ObjectClass = ObjectClass(
+            val testValue: RadFileDataClass = RadFileDataClass(
                 nameExamination,
                 spinner_selection,
                 date,
                 storageData,
                 evaluationData,
                 noteData,
-                currentPhotoPath,
-                currentPhotoDescription,
+                ImageDataClass(currentPhotoPath,currentPhotoDescription,currentMarker),
                 favoritesOut
             )
+
             val okIntent = Intent(this, MainActivity::class.java)
             okIntent.putExtraJson("data", testValue)
             okIntent.putExtra("position", position)
@@ -304,9 +297,11 @@ class NewListItem : AppCompatActivity() {
 //
         photoButton.setOnClickListener {
             val intent = Intent(this, CameraActivity::class.java)
+            val imageData= ImageDataClass(currentPhotoPath,currentPhotoDescription,currentMarker)
+            intent.putExtraJson("imageData", imageData)
 
-            currentPhotoDescription.let { it1 -> intent.putExtraJson("dataDescription", it1) }
-            currentPhotoPath.let { it1 -> intent.putExtraJson("dataImages", it1) }
+//            currentPhotoDescription.let { it1 -> intent.putExtraJson("dataDescription", it1) }
+//            currentPhotoPath.let { it1 -> intent.putExtraJson("dataImages", it1) }
             startActivityForResult(intent, REQUEST_IMAGE_EDITOR)
         }
 
@@ -458,15 +453,20 @@ class NewListItem : AppCompatActivity() {
      */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_IMAGE_EDITOR && resultCode == Activity.RESULT_OK) {
-            currentPhotoPath =
-                data!!.getJsonExtra("dataImage", MutableList::class.java) as MutableList<String>
-            currentPhotoDescription = data!!.getJsonExtra(
-                "dataDescription",
-                MutableList::class.java
-            ) as MutableList<String>
+            val currentData=  data!!.getJsonExtra("imageData", ImageDataClass::class.java)
+            currentPhotoPath = currentData!!.imageFiles
+            currentPhotoDescription = currentData.imageDescription
+            currentMarker = currentData.marker
             if (currentPhotoPath.size >= 1) {
-                val takenImage = BitmapFactory.decodeFile(currentPhotoPath[0])
-                imageView.setImageBitmap(takenImage)
+                try{
+                    val takenImage = BitmapFactory.decodeFile(currentPhotoPath[0])
+                    imageView.setImageBitmap(takenImage)
+                }catch (e: Exception){
+                    println("Exception in onActivityResult")
+                }
+
+
+
             }
 
         } else {

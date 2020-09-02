@@ -5,35 +5,22 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.AbsListView.CHOICE_MODE_SINGLE
 import androidx.appcompat.app.AppCompatActivity
-import java.io.File
 import android.content.Context
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
-import android.text.method.TextKeyListener.clear
 import android.widget.*
-import android.widget.AbsListView.CHOICE_MODE_MULTIPLE
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.edit
-import androidx.core.view.isVisible
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import java.io.FileOutputStream
-import java.io.ObjectOutputStream
-import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.Paths
 
 //help function
 
 inline fun <reified ObjectClass> genericType() =
-    object : TypeToken<com.example.radioapp.ObjectClass>() {}.type
+    object : TypeToken<com.example.radioapp.RadFileDataClass>() {}.type
 
 /**
  * This Class displays a listView with ObjectClass Items. The Adapter is defined in the AdapterClass.
@@ -69,12 +56,12 @@ class MainActivity : AppCompatActivity() {
         ) != PackageManager.PERMISSION_GRANTED
     }
 
-    fun requestPermission() {
+    private fun requestPermission() {
         ActivityCompat.requestPermissions(this, permissions, 0)
     }
 
     //the variable for the adapter
-    private lateinit var adapter: AdapterClass
+    private lateinit var adapter: MainListAdapterClass
 
     //onCreate function of the Activity
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,7 +91,7 @@ class MainActivity : AppCompatActivity() {
         var listItems = loadFromFile()
 
         //initializing the listView adapter
-        adapter = AdapterClass(this, R.layout.listview_item, listItems)
+        adapter = MainListAdapterClass(this, R.layout.listview_item, listItems)
 
         //attach the array adapter with list view
         val listView: android.widget.ListView = findViewById(R.id.listview_1)
@@ -115,7 +102,7 @@ class MainActivity : AppCompatActivity() {
         // opening the editing Activity when a click is performed on an existing listView Item
         listView.setOnItemClickListener { parent, view, position, id ->
 
-            val element: ObjectClass = parent.getItemAtPosition(position) as ObjectClass
+            val element: RadFileDataClass = parent.getItemAtPosition(position) as RadFileDataClass
             val intent = Intent(this, NewListItem::class.java)
 
 
@@ -188,7 +175,7 @@ class MainActivity : AppCompatActivity() {
             //when the request was from the new examination button
             if (requestCode == NEW_ITEM) {
 
-                val dataObject = data?.getJsonExtra("data", ObjectClass::class.java)
+                val dataObject = data?.getJsonExtra("data", RadFileDataClass::class.java)
                 adapter.add(dataObject)
                 //restating the main activity
 
@@ -198,7 +185,7 @@ class MainActivity : AppCompatActivity() {
             //when the request was from a click on a listView item
             if (requestCode == EDIT_ITEM) {
                 val currentPosition = data?.getIntExtra("position", 0)
-                val dataObject = data?.getJsonExtra("data", ObjectClass::class.java)
+                val dataObject = data?.getJsonExtra("data", RadFileDataClass::class.java)
                 val currentItem = adapter.getItem(currentPosition!!)
                 adapter.remove(currentItem)
                 adapter.insert(dataObject, currentPosition!!)
@@ -216,7 +203,7 @@ class MainActivity : AppCompatActivity() {
         if (resultCode == Activity.RESULT_FIRST_USER) {
             val currentPosition = data?.getIntExtra("position", 0)
             val currentItem = adapter.getItem(currentPosition!!)
-            for (item in currentItem.image!!) {
+            for (item in currentItem.image.imageFiles!!) {
                 val path = Paths.get(item)
                 if (path.delete()) {
                     println("Deleted ${path.fileName}")
@@ -232,18 +219,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     //method load the list items from sharedPreferences
-    private fun loadFromFile(): MutableList<ObjectClass> {
+    private fun loadFromFile(): MutableList<RadFileDataClass> {
         val sharedPreferences = getSharedPreferences(SHARED_PREFERANCES, Context.MODE_PRIVATE)
         val gson = Gson()
         val json = sharedPreferences.getString(KEY_PATH, null)
 
 
-        val objectType = object : TypeToken<MutableList<ObjectClass>>() {}.type
+        val objectType = object : TypeToken<MutableList<RadFileDataClass>>() {}.type
 
-        var listItems = gson.fromJson<MutableList<ObjectClass>>(json, objectType)
+        var listItems = gson.fromJson<MutableList<RadFileDataClass>>(json, objectType)
 
         if (listItems == null) {
-            listItems = mutableListOf<ObjectClass>()
+            listItems = mutableListOf<RadFileDataClass>()
         }
         return listItems
     }

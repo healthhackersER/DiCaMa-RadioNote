@@ -31,7 +31,7 @@
                 android:resource="@xml/fileprovider" />
         </provider>
 
-        <activity android:name=".EditListItem" />
+
         <activity android:name=".NewListItem" />
         <activity android:name=".MainActivity">
             <intent-filter>

@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.annotation.RequiresApi
-import kotlinx.android.synthetic.main.activity_new_list_item.*
 import java.time.format.DateTimeFormatter
 
 
@@ -17,10 +16,10 @@ import java.time.format.DateTimeFormatter
  * this adapter class disyplays the list items in the listView with thumbnail image, description, date, and type
  *
  */
-class AdapterClass(
+class MainListAdapterClass(
     context: Context, private val layoutResource: Int,
-    private val dataSource: MutableList<ObjectClass>
-) : ArrayAdapter<ObjectClass>(context, layoutResource, dataSource) {
+    private val dataSource: MutableList<RadFileDataClass>
+) : ArrayAdapter<RadFileDataClass>(context, layoutResource, dataSource) {
 
     private val inflater: LayoutInflater =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -33,7 +32,7 @@ class AdapterClass(
     }
 
 
-    override fun getItem(position: Int): ObjectClass {
+    override fun getItem(position: Int): RadFileDataClass {
         return dataSource[position]
     }
 
@@ -42,6 +41,7 @@ class AdapterClass(
     }
 
 
+    @SuppressLint("ViewHolder")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
@@ -64,14 +64,14 @@ class AdapterClass(
 
 
 // getting the data from the different listView items and setting them to the view
-        var object_item = getItem(position) as ObjectClass
+        var object_item = getItem(position) as RadFileDataClass
         titleTextView.text = object_item.examination
         detailTextView.text = object_item.date?.format(formatter).toString()
         var dropdownStringArray = context.resources.getStringArray(R.array.type_array)
         subtitleTextView.text = dropdownStringArray[object_item.type!!].toString()
 
-        if (object_item.image!!.size>=1) {
-            val currentImage = BitmapFactory.decodeFile(object_item.image!![0])
+        if (object_item.image.imageFiles.size>=1) {
+            val currentImage = BitmapFactory.decodeFile(object_item.image.imageFiles[0])
             thumbnailImageView.setImageBitmap(currentImage)
         }
 
