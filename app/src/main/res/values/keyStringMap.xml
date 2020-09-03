@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="key_string_array">
-        <item>TNM|Die TNM-Klassifikation ist eine Klassifikation zum Staging von Tumorerkrankungen. Die mehrdimensionale Einteilung gibt unterschiedliche Schweregrade hinsichtlich der Ausdehnung (Größe, Infiltrationstiefe) des Primärtumors (T), des Lymphknotenbefalls (N) und allfälliger Metastasen (M) an.</item>
+        <item>tnm|Die TNM-Klassifikation ist eine Klassifikation zum Staging von Tumorerkrankungen. Die mehrdimensionale Einteilung gibt unterschiedliche Schweregrade hinsichtlich der Ausdehnung (Größe, Infiltrationstiefe) des Primärtumors (T), des Lymphknotenbefalls (N) und allfälliger Metastasen (M) an.</item>
         <item>vollständige|Wird auch vollständige Remission genannt. Die Krankheit ist mit den zur Verfügung stehenden diagnostischen Maßnahmen nicht mehr nachweisbar.</item>
         <item>partielle|Das Tumorvolumen wurde um mehr als 50 % vermindert unter der derzeitigen Therapie im Vergleich zur Untersuchung vor der derzeitigen Therapie</item>
         <item>stabile|Eine stabile Erkrankung bedeutet, dass sich das Volumen des Tumors um weniger als 25 % geändert hat</item>

@@ -433,12 +433,14 @@ class NewListItem : AppCompatActivity() {
     ) {
         val sentenceString = target.text.toString()
         val spanString = SpannableString(sentenceString)
-        val sentenceWords = sentenceString.replace('\n', ' ').split(" ")
-
+        var sentenceWords = sentenceString.replace('\n', ' ').split(" ").toMutableList()
+        for (i in sentenceWords.indices){
+            sentenceWords[i]=sentenceWords[i].toLowerCase()
+        }
 
         for (word in sentenceWords) {
             if (thisStringMap.containsKey(word)) {
-                val startIndex = sentenceString.indexOf(word, 0)
+                val startIndex = sentenceString.indexOf(word, 0, true)
                 val stopIndex = startIndex + word.length
 
                 val clickableSpan = object : ClickableSpan() {

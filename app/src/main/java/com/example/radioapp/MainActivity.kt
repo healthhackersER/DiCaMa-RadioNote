@@ -9,6 +9,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
@@ -63,6 +65,22 @@ class MainActivity : AppCompatActivity() {
     //the variable for the adapter
     private lateinit var adapter: MainListAdapterClass
 
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menue,menu);
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
+        if (id == R.id.settings_action){
+            Toast.makeText(this, "item Add Clicked", Toast.LENGTH_SHORT).show()
+            return true
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
     //onCreate function of the Activity
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,7 +89,7 @@ class MainActivity : AppCompatActivity() {
         //values of different Buttons
         val shareButton = findViewById<ImageButton>(R.id.share_Button)
         val searchButton = findViewById<ImageButton>(R.id.search_Button)
-        val configButton = findViewById<ImageButton>(R.id.config_Button)
+
         val deleteButton = findViewById<ImageButton>(R.id.delete_Button)
         val saveButton = findViewById<Button>(R.id.save_Button)
         val favoriteButton = findViewById<ImageButton>(R.id.favorite_Button)
@@ -129,6 +147,12 @@ class MainActivity : AppCompatActivity() {
 
             return@setOnItemLongClickListener (true)
         }
+
+        //TODO fill with life
+        deleteButton.setOnClickListener{
+            val itemId=listView.checkedItemPosition
+            println("Test")
+        }        
 
         //saving the listitem object to sharedPreferences on button click
         saveButton.setOnClickListener {
