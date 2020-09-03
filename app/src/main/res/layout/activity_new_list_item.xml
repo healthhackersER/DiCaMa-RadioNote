@@ -101,6 +101,8 @@
                     android:layout_width="214dp"
                     android:layout_height="212dp"
                     android:layout_marginTop="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
                     tools:srcCompat="@tools:sample/avatars" />
 
                 <LinearLayout
@@ -241,11 +243,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <Button
-            android:id="@+id/edit_ok_Button"
+        <ImageButton
+            android:id="@+id/edit_delete_Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ok" />
+            app:srcCompat="@android:drawable/ic_menu_delete" />
 
         <Button
             android:id="@+id/edit_cancel_Button"
@@ -255,11 +257,13 @@
             android:layout_marginRight="8dp"
             android:text="Cancel" />
 
-        <ImageButton
-            android:id="@+id/edit_delete_Button"
+        <Button
+            android:id="@+id/edit_ok_Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@android:drawable/ic_menu_delete" />
+
+            android:text="Ok" />
+
     </LinearLayout>
 
 

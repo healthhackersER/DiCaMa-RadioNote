@@ -22,7 +22,9 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.davemorrissey.labs.subscaleview.ImageSource
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.android.synthetic.main.activity_camera.*
 import kotlinx.android.synthetic.main.activity_new_list_item.*
 import java.io.File
 import java.lang.Exception
@@ -51,6 +53,9 @@ class NewListItem : AppCompatActivity() {
     var currentPhotoPath: MutableList<String> = mutableListOf<String>()
     var currentPhotoDescription: MutableList<String> = mutableListOf()
     var currentMarker: MutableList<FloatArray> = mutableListOf()
+    private lateinit var myStringMap: MutableMap<String,String>
+
+    var clickList = mutableListOf<Any>()
 
     @RequiresApi(Build.VERSION_CODES.O)
     var formatter: DateTimeFormatter? = DateTimeFormatter.ofPattern("dd/MM/yyyy")
@@ -62,6 +67,8 @@ class NewListItem : AppCompatActivity() {
         const val EDIT_DATE = 3
         const val EDIT_TEXT = 4
         const val REQUEST_IMAGE_EDITOR = 5
+        const val REQUEST_KEYWORD_DIALOGUE = 6
+
     }
 
     /**
@@ -100,9 +107,8 @@ class NewListItem : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_list_item)
-        val myStringMap = parseStringArray(R.array.key_string_array, this)
-        var clickList = mutableListOf<Any>()
 
+        myStringMap = parseStringArray(R.array.key_string_array, this)
 
         //variables and values for different buttons, textfields ect.
         val okButton = findViewById<Button>(R.id.edit_ok_Button)
@@ -135,6 +141,7 @@ class NewListItem : AppCompatActivity() {
         }
         editBeurteilung.setOnClickListener {
             editDialog(editBeurteilung, EDIT_TEXT)
+
         }
         editNotiz.setOnClickListener {
             editDialog(editNotiz, EDIT_TEXT)
@@ -185,20 +192,30 @@ class NewListItem : AppCompatActivity() {
             currentPhotoPath = objectClass.image.imageFiles!!
             currentPhotoDescription = objectClass.image.imageDescription!!
             currentMarker=objectClass.image.marker!!
-            val currentImage = BitmapFactory.decodeFile(objectClass.image.imageFiles[0])
-            imageView.setImageBitmap(currentImage)
+
+
+
+            if (objectClass.image.imageFiles.size >= 1) {
+                val currentImage = BitmapFactory.decodeFile(objectClass.image.imageFiles[0])
+                imageView.setImageBitmap(currentImage)
+            }else if(objectClass.image.imageFiles.size ==0 ){
+                val defaultImage = BitmapFactory.decodeResource(this.resources, R.drawable.xray_flower)
+                imageView.setImageBitmap(defaultImage)
+            }
 
 
             val currentPosition = objectClass.type!!
             spinner.setSelection(currentPosition)
 
-            checkKeyWords(edit_Beurteilung, myStringMap, clickList)
+            checkKeyWords(editBeurteilung, myStringMap, clickList)
+            checkKeyWords(editNotiz,myStringMap,clickList)
         }
 
 
         //if the activity was started by the new exmamination button
         if (purpose == "new") {
-            //do nothing
+            val defaultImage = BitmapFactory.decodeResource(this.resources, R.drawable.xray_flower)
+            imageView.setImageBitmap(defaultImage)
         }
 
 
@@ -294,7 +311,14 @@ class NewListItem : AppCompatActivity() {
             }
         }
 
-//
+        imageView.setOnClickListener {
+            val intent = Intent(this, CameraActivity::class.java)
+            val imageData= ImageDataClass(currentPhotoPath,currentPhotoDescription,currentMarker)
+            intent.putExtraJson("imageData", imageData)
+
+            startActivityForResult(intent, REQUEST_IMAGE_EDITOR)
+        }
+
         photoButton.setOnClickListener {
             val intent = Intent(this, CameraActivity::class.java)
             val imageData= ImageDataClass(currentPhotoPath,currentPhotoDescription,currentMarker)
@@ -386,8 +410,10 @@ class NewListItem : AppCompatActivity() {
 
                 } else if (flag == EDIT_TEXT) {
                     target.text = text!!.text.toString()
+
                     //force hide the keyboard
                     inputMethodManager.hideSoftInputFromWindow(text.windowToken, 0)
+                    checkKeyWords(target, myStringMap, clickList)
                     bottomSheetDialog.dismiss()
                 }
             }
@@ -420,7 +446,12 @@ class NewListItem : AppCompatActivity() {
                     override fun onClick(p0: View) {
                         //Do nothing
                         val message = thisStringMap.getValue(word)
-                        Toast.makeText(this@NewListItem, message, Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this@NewListItem, keyword_dialogue::class.java)
+                        intent.putExtra("message",message)
+                        startActivityForResult(intent,REQUEST_KEYWORD_DIALOGUE)
+
+
+                        //Toast.makeText(this@NewListItem, message, Toast.LENGTH_SHORT).show()
                     }
                 }
 
@@ -469,7 +500,11 @@ class NewListItem : AppCompatActivity() {
 
             }
 
-        } else {
+        } else if (requestCode== REQUEST_KEYWORD_DIALOGUE){
+            onResume()
+        }
+
+        else{
             super.onActivityResult(requestCode, resultCode, data)
         }
         onRestart()

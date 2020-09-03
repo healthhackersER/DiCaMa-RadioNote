@@ -143,7 +143,7 @@ class MainActivity : AppCompatActivity() {
         //sorting after favorites
         favoriteButton.setOnClickListener {
             if (toggle == false) {
-                adapter.sort(compareByDescending({ it.favorites }))
+                adapter.sort(compareBy({ it.favorites }))
                 toggle = true
             } else {
                 adapter.sort(compareByDescending({ it.date }))

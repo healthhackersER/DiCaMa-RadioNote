@@ -42,12 +42,12 @@ class CameraActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickListener 
     private lateinit var currentPhotoDescription: MutableList<String>
     private lateinit var currentMarker: MutableList<FloatArray>
     private lateinit var currentSelection: MutableList<Boolean>
+    //holds the position for the selection
     private var currentPosition = -1
-//    private var tracker: SelectionTracker<Long>? = null
+
 
     // class member variable to save the X,Y coordinates
     private var lastTouchDownXY: FloatArray? = FloatArray(2)
-
     @SuppressLint("ClickableViewAccessibility")
     var touchListener = OnTouchListener { v, event ->
         if (event.actionMasked == MotionEvent.ACTION_DOWN) {
@@ -59,6 +59,7 @@ class CameraActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickListener 
         return@OnTouchListener false
     }
 
+    //
     var clickListener: View.OnClickListener =
         View.OnClickListener { // retrieve the stored coordinates
             val x = lastTouchDownXY!![0]
@@ -103,23 +104,16 @@ class CameraActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickListener 
         )
         recyclerView.adapter = adapter
 
-//        tracker = SelectionTracker.Builder<Long>(
-//            "mySelection",
-//            recyclerView,
-//            MyItemKeyProvider(recyclerView),
-//            MyItemDetailsLookup(recyclerView),
-//            StorageStrategy.createLongStorage()
-//        ).withSelectionPredicate(
-//            SelectionPredicates.createSelectSingleAnything()
-//        ).build()
-//
-//        adapter.tracker = tracker
+
 
         recyclerView.adapter = adapter
 
         //setting up on first image display
         if (currentPhotoImages.size >= 1) {
             simulateClick(0)
+        }else if(currentPhotoImages.size ==0 ){
+            val defaultImage = BitmapFactory.decodeResource(this.resources, R.drawable.xray_flower)
+            big_imageView.setImage(ImageSource.bitmap(defaultImage))
         }
 
         big_imageView.setOnTouchListener(touchListener);

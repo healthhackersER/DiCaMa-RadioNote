@@ -19,7 +19,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".CameraActivity"></activity>
+        <activity android:name=".keyword_dialogue"></activity>
+        <activity android:name=".CameraActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -30,7 +31,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/fileprovider" />
         </provider>
-
 
         <activity android:name=".NewListItem" />
         <activity android:name=".MainActivity">
