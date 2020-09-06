@@ -18,7 +18,7 @@ import java.time.format.DateTimeFormatter
  */
 class MainListAdapterClass(
     context: Context, private val layoutResource: Int,
-    private val dataSource: MutableList<RadFileDataClass>
+    private val dataSource: MutableList<RadFileDataClass>, private val recentSource:MutableList<Int>
 ) : ArrayAdapter<RadFileDataClass>(context, layoutResource, dataSource) {
 
     private val inflater: LayoutInflater =
@@ -44,9 +44,16 @@ class MainListAdapterClass(
     @SuppressLint("ViewHolder")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-
         // Get view for row item
         val rowView = inflater.inflate(R.layout.listview_item, parent, false)
+        if(recentSource[position]==1){
+            rowView.setBackgroundResource(R.drawable.background_highlighted_item_selection)
+        }else if(recentSource[position]==-1){
+            rowView.setBackgroundResource(R.drawable.background_item_selection)
+        }
+
+        // Get view for row item
+
 
         val titleTextView = rowView.findViewById(R.id.object_list_title) as TextView
 

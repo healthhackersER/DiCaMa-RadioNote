@@ -50,11 +50,12 @@ class CameraActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickListener 
     private var lastTouchDownXY: FloatArray? = FloatArray(2)
     @SuppressLint("ClickableViewAccessibility")
     var touchListener = OnTouchListener { v, event ->
-        if (event.actionMasked == MotionEvent.ACTION_DOWN) {
-            lastTouchDownXY!![0] = event.x
-            lastTouchDownXY!![1] = event.y
+        if (currentPhotoImages.size>=1) {
+            if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+                lastTouchDownXY!![0] = event.x
+                lastTouchDownXY!![1] = event.y
+            }
         }
-
 
         return@OnTouchListener false
     }
@@ -62,13 +63,17 @@ class CameraActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickListener 
     //
     var clickListener: View.OnClickListener =
         View.OnClickListener { // retrieve the stored coordinates
-            val x = lastTouchDownXY!![0]
-            val y = lastTouchDownXY!![1]
+            if (currentPhotoImages.size>=1) {
+                val x = lastTouchDownXY!![0]
+                val y = lastTouchDownXY!![1]
 
-            // use the coordinates for whatever
-            currentMarker[currentPosition].set(0, x)
-            currentMarker[currentPosition].set(1, y)
-            big_imageView.setPin(PointF(x, y))
+                // use the coordinates for whatever
+                currentMarker[currentPosition].set(0, x)
+                currentMarker[currentPosition].set(1, y)
+
+                big_imageView.setPin(PointF(x, y))
+            }
+
 
         }
 

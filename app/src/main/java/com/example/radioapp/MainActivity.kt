@@ -8,6 +8,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.os.Build
 import android.view.Menu
 import android.view.MenuItem
@@ -64,6 +65,8 @@ class MainActivity : AppCompatActivity() {
 
     //the variable for the adapter
     private lateinit var adapter: MainListAdapterClass
+    private lateinit var listItems: MutableList<RadFileDataClass>
+    private lateinit var highlightList:MutableList<Int>
 
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -82,6 +85,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     //onCreate function of the Activity
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -97,8 +101,8 @@ class MainActivity : AppCompatActivity() {
 
         //toggle value for the favorite Button to toggle bettwen date and favorite
         var toggle = false
-        shareButton.visibility=View.INVISIBLE
-        deleteButton.visibility=View.INVISIBLE
+        shareButton.visibility = View.INVISIBLE
+        deleteButton.visibility = View.INVISIBLE
 
         //requesting the permission at runtime
         if (hasNoPermissions()) {
@@ -106,16 +110,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         //loading the data from File
-        var listItems = loadFromFile()
+        listItems = loadFromFile()
+        var temp = IntArray(listItems.size) { _ -> -1 }
+        highlightList = temp.toMutableList()
 
         //initializing the listView adapter
-        adapter = MainListAdapterClass(this, R.layout.listview_item, listItems)
+        adapter = MainListAdapterClass(this, R.layout.listview_item, listItems, highlightList)
 
         //attach the array adapter with list view
         val listView: android.widget.ListView = findViewById(R.id.listview_1)
         listView.itemsCanFocus = true
         listView.adapter = adapter
-        listView.choiceMode= ListView.CHOICE_MODE_SINGLE
+        listView.choiceMode = ListView.CHOICE_MODE_SINGLE
 
         // opening the editing Activity when a click is performed on an existing listView Item
         listView.setOnItemClickListener { parent, view, position, id ->
@@ -135,11 +141,11 @@ class MainActivity : AppCompatActivity() {
 
         listView.setOnItemLongClickListener { parent, view, position, id ->
             Toast.makeText(this, "Position Clicked:" + " " + position, Toast.LENGTH_SHORT).show()
-            if(listView.isItemChecked(position)){
+            if (listView.isItemChecked(position)) {
                 listView.setItemChecked(position, false)
-                shareButton.visibility=View.INVISIBLE
-                deleteButton.visibility=View.INVISIBLE
-            }else {
+                shareButton.visibility = View.INVISIBLE
+                deleteButton.visibility = View.INVISIBLE
+            } else {
                 listView.setItemChecked(position, true)
                 shareButton.visibility = View.VISIBLE
                 deleteButton.visibility = View.VISIBLE
@@ -149,35 +155,59 @@ class MainActivity : AppCompatActivity() {
         }
 
         //TODO fill with life
-        deleteButton.setOnClickListener{
-            val itemId=listView.checkedItemPosition
+        deleteButton.setOnClickListener {
+            val itemId = listView.checkedItemPosition
             println("Test")
-        }        
-
+        }
         //saving the listitem object to sharedPreferences on button click
         saveButton.setOnClickListener {
-            val sharedPreferences = getSharedPreferences(SHARED_PREFERANCES, Context.MODE_PRIVATE)
-            val editor = sharedPreferences.edit()
-            val gson = Gson()
-            val json = gson.toJson(listItems)
-            editor.putString(KEY_PATH, json)
-            editor.apply()
+            saveToFile()
         }
+
 
         //sorting after favorites
         favoriteButton.setOnClickListener {
             if (toggle == false) {
-                adapter.sort(compareBy({ it.favorites }))
+                adapter.sort(compareByDescending({ it.favorites }))
                 toggle = true
             } else {
                 adapter.sort(compareByDescending({ it.date }))
+                toggle = false
             }
         }
 
         //sortting after date
+        var toggle_sort=false
         sortButton.setOnClickListener {
-            adapter.sort(compareByDescending({ it.date }))
+            //array with the position of the most recent type Item in the listView. The Index of the array
+            //marks the position of the Type defined by the @values keyStringMap
+            if(toggle_sort==false) {
+                val recent = searchMostRecent()
+                var recentList = mutableListOf<Int>()
+                for (i in recent.indices) {
+                    if (recent[i] != -1) {
+                        recentList.add(recent[i]!!)
+                    }
+                }
+
+                for (i in recentList.indices) {
+                    highlightList[recentList[i]] = 1
+                }
+                adapter.notifyDataSetChanged()
+
+                toggle_sort=true
+            }else if (toggle_sort==true){
+                temp= IntArray(listItems.size) { _ -> -1 }
+                highlightList = temp.toMutableList()
+
+                toggle_sort=false
+                adapter.notifyDataSetChanged()
+            }
+
         }
+
+
+
 
     }
 
@@ -191,6 +221,7 @@ class MainActivity : AppCompatActivity() {
 
 
     //the results which the MainActivityClass gets returned from the different Activities
+    @ExperimentalStdlibApi
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -201,8 +232,10 @@ class MainActivity : AppCompatActivity() {
 
                 val dataObject = data?.getJsonExtra("data", RadFileDataClass::class.java)
                 adapter.add(dataObject)
+                highlightList.add(-1)
                 //restating the main activity
-
+                adapter.sort(compareByDescending({ it.date }))
+                saveToFile()
                 onRestart()
 
             }
@@ -214,6 +247,8 @@ class MainActivity : AppCompatActivity() {
                 adapter.remove(currentItem)
                 adapter.insert(dataObject, currentPosition!!)
                 //restating the main activity
+                adapter.sort(compareByDescending({ it.date }))
+                saveToFile()
                 onRestart()
             }
         }
@@ -236,10 +271,42 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             adapter.remove(currentItem)
+            highlightList.remove(highlightList.size-1)
+            saveToFile()
             onRestart()
         }
 
 
+    }
+    private fun saveToFile(){
+        val sharedPreferences = getSharedPreferences(SHARED_PREFERANCES, Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        val gson = Gson()
+        val json = gson.toJson(listItems)
+        editor.putString(KEY_PATH, json)
+        editor.apply()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun searchMostRecent(): Array<Int?> {
+        val res: Resources = resources
+        val dropdownArray=res.getStringArray(R.array.type_array)
+        var currentRecentItems= arrayOfNulls<Int>(dropdownArray.size)
+        currentRecentItems.fill(-1,0,currentRecentItems.size)
+        for (i in listItems.indices){
+            val currentData= listItems[i].type
+            if (currentRecentItems[currentData!!]==-1){
+                currentRecentItems[currentData!!]=i
+            }else if(currentRecentItems[i]!=-1){
+                if( listItems[currentRecentItems[currentData!!]!!].date?.compareTo(listItems[i].date)!! < 0){
+                    currentRecentItems[currentData!!]=i
+                }
+
+
+            }
+
+        }
+        return currentRecentItems
     }
 
     //method load the list items from sharedPreferences
