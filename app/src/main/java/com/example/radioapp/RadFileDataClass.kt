@@ -12,5 +12,6 @@ data class RadFileDataClass (
     val evaluation: String?,
     val note: String?,
     val image: ImageDataClass,
-    var favorites: Boolean
+    var favorites: Boolean,
+    var highlight: Boolean
 )

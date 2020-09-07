@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
     //the variable for the adapter
     private lateinit var adapter: MainListAdapterClass
     private lateinit var listItems: MutableList<RadFileDataClass>
-    private lateinit var highlightList:MutableList<Int>
+    //private lateinit var highlightList:MutableList<Int>
 
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -111,11 +111,11 @@ class MainActivity : AppCompatActivity() {
 
         //loading the data from File
         listItems = loadFromFile()
-        var temp = IntArray(listItems.size) { _ -> -1 }
-        highlightList = temp.toMutableList()
+//        var temp = IntArray(listItems.size) { _ -> -1 }
+//        highlightList = temp.toMutableList()
 
         //initializing the listView adapter
-        adapter = MainListAdapterClass(this, R.layout.listview_item, listItems, highlightList)
+        adapter = MainListAdapterClass(this, R.layout.listview_item, listItems)
 
         //attach the array adapter with list view
         val listView: android.widget.ListView = findViewById(R.id.listview_1)
@@ -191,15 +191,21 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 for (i in recentList.indices) {
-                    highlightList[recentList[i]] = 1
+                    val currentElement=listItems.get(recentList[i])
+                    currentElement.highlight=true
+                    listItems[recentList[i]] = currentElement
+
                 }
                 adapter.notifyDataSetChanged()
-
                 toggle_sort=true
             }else if (toggle_sort==true){
-                temp= IntArray(listItems.size) { _ -> -1 }
-                highlightList = temp.toMutableList()
-
+                //temp= IntArray(listItems.size) { _ -> -1 }
+                //highlightList = temp.toMutableList()
+                for (i in listItems.indices){
+                    val currentElement=listItems.get(i)
+                    currentElement.highlight=false
+                    listItems[i] = currentElement
+                }
                 toggle_sort=false
                 adapter.notifyDataSetChanged()
             }
@@ -232,7 +238,7 @@ class MainActivity : AppCompatActivity() {
 
                 val dataObject = data?.getJsonExtra("data", RadFileDataClass::class.java)
                 adapter.add(dataObject)
-                highlightList.add(-1)
+                //highlightList.add(-1)
                 //restating the main activity
                 adapter.sort(compareByDescending({ it.date }))
                 saveToFile()
@@ -271,7 +277,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             adapter.remove(currentItem)
-            highlightList.remove(highlightList.size-1)
+            //highlightList.remove(highlightList.size-1)
             saveToFile()
             onRestart()
         }

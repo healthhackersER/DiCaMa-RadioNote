@@ -18,7 +18,7 @@ import java.time.format.DateTimeFormatter
  */
 class MainListAdapterClass(
     context: Context, private val layoutResource: Int,
-    private val dataSource: MutableList<RadFileDataClass>, private val recentSource:MutableList<Int>
+    private val dataSource: MutableList<RadFileDataClass>
 ) : ArrayAdapter<RadFileDataClass>(context, layoutResource, dataSource) {
 
     private val inflater: LayoutInflater =
@@ -46,11 +46,12 @@ class MainListAdapterClass(
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         // Get view for row item
         val rowView = inflater.inflate(R.layout.listview_item, parent, false)
-        if(recentSource[position]==1){
-            rowView.setBackgroundResource(R.drawable.background_highlighted_item_selection)
-        }else if(recentSource[position]==-1){
-            rowView.setBackgroundResource(R.drawable.background_item_selection)
-        }
+
+//        if(recentSource[position]==1){
+//            rowView.setBackgroundResource(R.drawable.background_highlighted_item_selection)
+//        }else if(recentSource[position]==-1){
+//            rowView.setBackgroundResource(R.drawable.background_item_selection)
+//        }
 
         // Get view for row item
 
@@ -86,6 +87,11 @@ class MainListAdapterClass(
         checkbox.isChecked = object_item.favorites
         checkbox.setOnClickListener {
             object_item.favorites = checkbox.isChecked
+        }
+
+        //setting the highlights from highlight
+        if(object_item.highlight){
+            rowView.setBackgroundResource(R.drawable.background_highlighted_item_selection)
         }
 
         return rowView

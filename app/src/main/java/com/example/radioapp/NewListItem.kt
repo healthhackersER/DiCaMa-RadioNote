@@ -268,7 +268,8 @@ class NewListItem : AppCompatActivity() {
                 evaluationData,
                 noteData,
                 ImageDataClass(currentPhotoPath,currentPhotoDescription,currentMarker),
-                favoritesOut
+                favoritesOut,
+                highlight = false
             )
 
             val okIntent = Intent(this, MainActivity::class.java)
