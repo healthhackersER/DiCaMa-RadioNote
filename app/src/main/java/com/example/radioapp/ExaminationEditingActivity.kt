@@ -22,9 +22,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.davemorrissey.labs.subscaleview.ImageSource
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.android.synthetic.main.activity_camera.*
 import kotlinx.android.synthetic.main.activity_new_list_item.*
 import java.io.File
 import java.lang.Exception
@@ -33,34 +31,26 @@ import java.time.format.DateTimeFormatter
 
 
 /**
- * Help function to parse a string array
+ * Examination editing activity displays the Activity in order to edit the Text for each examination
+ * from [MainActivity]. Can call [CameraEditingActivity] for the images and returns edited
+ * Items as [RadFileDataClass] back to the [MainActivity].
+ *
+ * @constructor Create empty Examination editing activity
  */
-fun parseStringArray(stringArrayResourceId: Int, context: Context): MutableMap<String, String> {
-    val stringArray: Array<String> = context.getResources().getStringArray(stringArrayResourceId)
-    val outputArray = mutableMapOf<String, String>()
-    for (entry in stringArray) {
-        val splitResult = entry.split("\\|".toRegex(), 2).toTypedArray()
-        outputArray.put(splitResult[0], splitResult[1])
-    }
-    return outputArray
-}
-
-/**
- * Activity Class to edit the different list view items
- */
-class NewListItem : AppCompatActivity() {
+class ExaminationEditingActivity : AppCompatActivity() {
     //variable for the pathname of the photo taken by the camera activity, needs to be declared here in order for all class function to be able to access it
     var currentPhotoPath: MutableList<String> = mutableListOf<String>()
     var currentPhotoDescription: MutableList<String> = mutableListOf()
     var currentMarker: MutableList<FloatArray> = mutableListOf()
-    private lateinit var myStringMap: MutableMap<String,String>
+    private lateinit var myStringMap: MutableMap<String, String>
 
     var clickList = mutableListOf<Any>()
 
     @RequiresApi(Build.VERSION_CODES.O)
+    //setting the format for the date field
     var formatter: DateTimeFormatter? = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
-
+    //definition of used Constant values
     companion object {
         const val REQUEST_TAKE_PHOTO = 1
         const val REQUEST_IMAGE_CAPTURE = 2
@@ -71,16 +61,19 @@ class NewListItem : AppCompatActivity() {
 
     }
 
-    /**
-     * following code implements a variable and method to check for the required permissions on runtime
-     */
-    val permissions = arrayOf(
+    //checking for permissions at runtime
+    private val permissions = arrayOf(
         android.Manifest.permission.CAMERA,
         android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
         android.Manifest.permission.READ_EXTERNAL_STORAGE
     )
 
-    //method to check for permissions
+    /**
+     * method to check if the permissions are not granted
+     *
+     * @return Boolean
+     *
+     */
     private fun hasNoPermissions(): Boolean {
         return ContextCompat.checkSelfPermission(
             this,
@@ -94,13 +87,16 @@ class NewListItem : AppCompatActivity() {
         ) != PackageManager.PERMISSION_GRANTED
     }
 
-    //requesting the permissions
+    /**
+     * Request permission method
+     *
+     */
     fun requestPermission() {
         ActivityCompat.requestPermissions(this, permissions, 0)
     }
 
     /**
-     * creating the Activity to edit the listView item
+     * creating the instance of the [ExaminationEditingActivity]
      */
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,6 +104,7 @@ class NewListItem : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_list_item)
 
+        //the string map with the keywords and the additional medical information
         myStringMap = parseStringArray(R.array.key_string_array, this)
 
         //variables and values for different buttons, textfields ect.
@@ -116,20 +113,21 @@ class NewListItem : AppCompatActivity() {
         val deleteButton = findViewById<ImageButton>(R.id.edit_delete_Button)
         val photoButton = findViewById<ImageButton>(R.id.edit_photo_Button)
 
+
         val purpose = intent.getStringExtra("purpose")
         val editAblageort = findViewById<TextView>(R.id.edit_Ablageort)
         val editBeurteilung = findViewById<TextView>(R.id.edit_Beurteilung)
         val editNotiz = findViewById<TextView>(R.id.edit_Notiz)
-//        val editBildbeschreibung = findViewById<TextView>(R.id.edit_Bildbeschreibung)
         val editDate = findViewById<TextView>(R.id.edit_Date)
         val editBeschreibung = findViewById<TextView>(R.id.edit_Beschreibung)
         var spinner_selection: Int? = null
         var favorites = false
-        val intent = getIntent()
+        val intent = intent
 
         //random listView position initialization to make it none null
         var position: Int = 505
 
+        //connecting the different TextViews to the Editing function
         editBeschreibung.setOnClickListener {
             editDialog(editBeschreibung, EDIT_TEXT)
         }
@@ -158,10 +156,16 @@ class NewListItem : AppCompatActivity() {
         spinner_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.setAdapter(spinner_adapter)
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            /**
+             * function for no item selected in the spinner
+             */
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 spinner_selection = null
             }
 
+            /**
+             * function for item selected in the spinner
+             */
             override fun onItemSelected(
                 parent: AdapterView<*>?,
                 view: View?,
@@ -173,9 +177,7 @@ class NewListItem : AppCompatActivity() {
         }
 
 
-        /**
-         * if an existing item was clicked
-         */
+        //if an existing item was clicked on in the MainActivity
         if (purpose == "editing") {
             val objectClass = intent.getJsonExtra("data", RadFileDataClass::class.java)
             position = intent.getIntExtra("position", 0)
@@ -191,28 +193,30 @@ class NewListItem : AppCompatActivity() {
             edit_Notiz.setText(objectClass!!.note)
             currentPhotoPath = objectClass.image.imageFiles!!
             currentPhotoDescription = objectClass.image.imageDescription!!
-            currentMarker=objectClass.image.marker!!
+            currentMarker = objectClass.image.marker!!
 
 
-
+            //showing the image if the examination has an image
             if (objectClass.image.imageFiles.size >= 1) {
                 val currentImage = BitmapFactory.decodeFile(objectClass.image.imageFiles[0])
                 imageView.setImageBitmap(currentImage)
-            }else if(objectClass.image.imageFiles.size ==0 ){
-                val defaultImage = BitmapFactory.decodeResource(this.resources, R.drawable.xray_flower)
+            } else if (objectClass.image.imageFiles.size == 0) {
+                val defaultImage =
+                    BitmapFactory.decodeResource(this.resources, R.drawable.xray_flower)
                 imageView.setImageBitmap(defaultImage)
             }
 
-
+            //setting up the spinner
             val currentPosition = objectClass.type!!
             spinner.setSelection(currentPosition)
 
+            //connecting the TextViews to the keyWord function
             checkKeyWords(editBeurteilung, myStringMap, clickList)
-            checkKeyWords(editNotiz,myStringMap,clickList)
+            checkKeyWords(editNotiz, myStringMap, clickList)
         }
 
 
-        //if the activity was started by the new exmamination button
+        //if the activity was started by the new exmamination button set up default image
         if (purpose == "new") {
             val defaultImage = BitmapFactory.decodeResource(this.resources, R.drawable.xray_flower)
             imageView.setImageBitmap(defaultImage)
@@ -230,24 +234,24 @@ class NewListItem : AppCompatActivity() {
             val noteData = edit_Notiz.text.toString()
             val favoritesOut = favorites
 
-            //check description
+            //check if description field is entered
             if (nameExamination != "") {
-                //do nothing and continue
+
             } else {
                 Toast.makeText(
-                    this@NewListItem,
+                    this@ExaminationEditingActivity,
                     "Bitte geben sie eine Beschreibung ein",
                     Toast.LENGTH_LONG
                 ).show()
                 return@setOnClickListener
 
             }
-            //check if datefield is entered correctly
+            //check if date field is entered correctly
             if (dateExamination.matches("^\\d{2}[/]\\d{2}[/]\\d{4}$".toRegex())) {
-                //do nothing and continue
+
             } else {
                 Toast.makeText(
-                    this@NewListItem,
+                    this@ExaminationEditingActivity,
                     "Bitte geben sie ein valides Datum im Format dd/mm/yyyy ein",
                     Toast.LENGTH_LONG
                 ).show()
@@ -267,7 +271,7 @@ class NewListItem : AppCompatActivity() {
                 storageData,
                 evaluationData,
                 noteData,
-                ImageDataClass(currentPhotoPath,currentPhotoDescription,currentMarker),
+                ImageDataClass(currentPhotoPath, currentPhotoDescription, currentMarker),
                 favoritesOut,
                 highlight = false
             )
@@ -279,14 +283,18 @@ class NewListItem : AppCompatActivity() {
             finish()
         }
 
-        //when the cancel button was clicked
+        /**
+         * when the cancel button is clicked
+         */
         cancelButton.setOnClickListener {
             val cancelIntent = Intent(this, MainActivity::class.java)
             setResult(Activity.RESULT_CANCELED, cancelIntent)
             finish()
         }
 
-        //when the delete button was clicked the current item gets deleted
+        /**
+         * when the delete button gets clicked the MainActivity gets notified to delete this item
+         */
         deleteButton.setOnClickListener {
             val deleteIntent = Intent(this, MainActivity::class.java)
             //when the delete button was clicked when a new item was created do the same as cancel
@@ -299,41 +307,37 @@ class NewListItem : AppCompatActivity() {
             else {
                 //telling the main activity to delete the listView item
                 deleteIntent.putExtra("position", position)
-                //TODO: delete the image file
-//                val path = Paths.get(currentPhotoPath)
-//                if (path.delete()) {
-//                    println("Deleted ${path.fileName}")
-//                } else {
-//                    println("Could not delete ${path.fileName}")
-//                }
-
                 setResult(Activity.RESULT_FIRST_USER, deleteIntent)
                 finish()
             }
         }
 
+        /**
+         * when the imageViewer is clicked on the CameraEditingActivity gets started
+         */
         imageView.setOnClickListener {
-            val intent = Intent(this, CameraActivity::class.java)
-            val imageData= ImageDataClass(currentPhotoPath,currentPhotoDescription,currentMarker)
+            val intent = Intent(this, CameraEditingActivity::class.java)
+            val imageData = ImageDataClass(currentPhotoPath, currentPhotoDescription, currentMarker)
             intent.putExtraJson("imageData", imageData)
 
             startActivityForResult(intent, REQUEST_IMAGE_EDITOR)
         }
 
+        /**
+         * when the cameraButton is clicked on the CameraEditingActivity gets started
+         */
         photoButton.setOnClickListener {
-            val intent = Intent(this, CameraActivity::class.java)
-            val imageData= ImageDataClass(currentPhotoPath,currentPhotoDescription,currentMarker)
+            val intent = Intent(this, CameraEditingActivity::class.java)
+            val imageData = ImageDataClass(currentPhotoPath, currentPhotoDescription, currentMarker)
             intent.putExtraJson("imageData", imageData)
-
-//            currentPhotoDescription.let { it1 -> intent.putExtraJson("dataDescription", it1) }
-//            currentPhotoPath.let { it1 -> intent.putExtraJson("dataImages", it1) }
             startActivityForResult(intent, REQUEST_IMAGE_EDITOR)
         }
 
 
 
-        //method to check if done button is clicked in TextView
-        // use: myEditText.onClickKeyboardDoneButton{myFunctionToExecuteWhenUserClickDone()}
+        /**
+         * when the done button on the virtual Keyboard gets clicked on
+         */
         fun TextView.onClickKeyboardDoneButton(funExecute: () -> Unit) {
             this.setOnEditorActionListener { _, actionId, _ ->
                 when (actionId) {
@@ -346,14 +350,13 @@ class NewListItem : AppCompatActivity() {
             }
         }
 
-//        val bottomSheet = findViewById<TextView>(R.id.text_image)
-//        bottomSheet.setOnClickListener {
-//            editDialog(bottomSheet, EDIT_TEXT)
-//        }
+
     }
 
     /**
      * Method to call a sheet Dialog to enter/ edit the text of a clickable text field
+     * @param target the targeted TextView
+     * @param flag if a date field is supposed to be entered = EDIT_DATE else EDIT_TEXT
      */
     private fun editDialog(target: TextView, flag: Int) {
 
@@ -368,7 +371,7 @@ class NewListItem : AppCompatActivity() {
         val text = bottomSheetDialog.findViewById<TextView>(R.id.editTextTextPersonName)
         val next = bottomSheetDialog.findViewById<ImageButton>(R.id.imageButton)
         val hint = bottomSheetDialog.findViewById<TextView>(R.id.textHint)
-        //showing the hin of the TextView
+        //showing the hint of the TextView
         hint!!.text = target.hint
 
         if (text != null) {
@@ -393,6 +396,7 @@ class NewListItem : AppCompatActivity() {
         if (next != null) {
 
             next.setOnClickListener {
+                //checking if the date is in right format
                 if (flag == EDIT_DATE) {
                     val textToCheck = text!!.text.toString()
                     if (textToCheck.matches("^\\d{2}[/]\\d{2}[/]\\d{4}$".toRegex())) {
@@ -402,7 +406,7 @@ class NewListItem : AppCompatActivity() {
                         bottomSheetDialog.dismiss()
                     } else {
                         Toast.makeText(
-                            this@NewListItem,
+                            this@ExaminationEditingActivity,
                             "Bitte geben sie ein valides Datum im Format dd/mm/yyyy ein",
                             Toast.LENGTH_LONG
                         ).show()
@@ -426,7 +430,15 @@ class NewListItem : AppCompatActivity() {
     }
 
 
-    //method to check the TextView Items for key words.
+    /**
+     * Check the target view for keywords defined in thisStringMap and sets up a clickable
+     * marked span the textview for the keyword. The clickable Keyword then gets connected to
+     * an [keyword_dialogue] activity which displayed the text defined in thisStringMap
+     *
+     * @param target the targeted textView
+     * @param thisStringMap the StringMap
+     * @param array not used variable intended to save the clickable keywords
+     */
     fun checkKeyWords(
         target: TextView,
         thisStringMap: MutableMap<String, String>,
@@ -434,11 +446,13 @@ class NewListItem : AppCompatActivity() {
     ) {
         val sentenceString = target.text.toString()
         val spanString = SpannableString(sentenceString)
+        //getting each word from the textView
         var sentenceWords = sentenceString.replace('\n', ' ').split(" ").toMutableList()
-        for (i in sentenceWords.indices){
-            sentenceWords[i]=sentenceWords[i].toLowerCase()
+        //converting to lower case in order to avoid case sensitivity
+        for (i in sentenceWords.indices) {
+            sentenceWords[i] = sentenceWords[i].toLowerCase()
         }
-
+        //setting up the keywords with the clickable links
         for (word in sentenceWords) {
             if (thisStringMap.containsKey(word)) {
                 val startIndex = sentenceString.indexOf(word, 0, true)
@@ -446,12 +460,17 @@ class NewListItem : AppCompatActivity() {
 
                 val clickableSpan = object : ClickableSpan() {
                     @Override
+                    /**
+                     * Method to call a  [keyword_dialogue] when the keyword gets clicked on
+                     * @param p0 the clickable keyword
+                     */
                     override fun onClick(p0: View) {
                         //Do nothing
                         val message = thisStringMap.getValue(word)
-                        val intent = Intent(this@NewListItem, keyword_dialogue::class.java)
-                        intent.putExtra("message",message)
-                        startActivityForResult(intent,REQUEST_KEYWORD_DIALOGUE)
+                        val intent =
+                            Intent(this@ExaminationEditingActivity, keyword_dialogue::class.java)
+                        intent.putExtra("message", message)
+                        startActivityForResult(intent, REQUEST_KEYWORD_DIALOGUE)
 
 
                         //Toast.makeText(this@NewListItem, message, Toast.LENGTH_SHORT).show()
@@ -475,7 +494,9 @@ class NewListItem : AppCompatActivity() {
     }
 
     /**
-     * unused function to create jpg file from filename
+     * method  to create jpg file from filename
+     * @para filename
+     * @return the jpg file
      */
     private fun getPhotoFile(fileName: String): File {
         val storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
@@ -483,38 +504,36 @@ class NewListItem : AppCompatActivity() {
     }
 
     /**
-     * method to display and set up tp the pathname for the image taken by the camera
+     * method to get the return from the [CameraEditingActivity] with the image file names,
+     * the markers and the image description
+     * @param requestCode
+     * @param resultCode
+     * @param data the data attachted to the intent
      */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_IMAGE_EDITOR && resultCode == Activity.RESULT_OK) {
-            val currentData=  data!!.getJsonExtra("imageData", ImageDataClass::class.java)
+            val currentData = data!!.getJsonExtra("imageData", ImageDataClass::class.java)
             currentPhotoPath = currentData!!.imageFiles
             currentPhotoDescription = currentData.imageDescription
             currentMarker = currentData.marker
             if (currentPhotoPath.size >= 1) {
-                try{
+                try {
                     val takenImage = BitmapFactory.decodeFile(currentPhotoPath[0])
                     imageView.setImageBitmap(takenImage)
-                }catch (e: Exception){
+                } catch (e: Exception) {
                     println("Exception in onActivityResult")
                 }
 
 
-
             }
-
-        } else if (requestCode== REQUEST_KEYWORD_DIALOGUE){
+            //return from the keyword_dialogue activity
+        } else if (requestCode == REQUEST_KEYWORD_DIALOGUE) {
             onResume()
-        }
-
-        else{
+        } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
         onRestart()
     }
-
-
-
 
 
 }

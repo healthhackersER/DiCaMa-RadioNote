@@ -17,14 +17,20 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 /**
- * following are help functions which are used throught the project
+ * permission array
  */
 val permissions = arrayOf(
     android.Manifest.permission.CAMERA,
     android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
     android.Manifest.permission.READ_EXTERNAL_STORAGE
 )
-//method to check for permissions
+
+/**
+ * Has no permissions method to check if the permissions are not granted
+ *
+ * @param context
+ * @return
+ */
 fun hasNoPermissions(context: Context): Boolean {
     return ContextCompat.checkSelfPermission(
         context,
@@ -38,12 +44,21 @@ fun hasNoPermissions(context: Context): Boolean {
     ) != PackageManager.PERMISSION_GRANTED
 }
 
-//requesting the permissions
+/**
+ * Request permission method
+ *
+ * @param context
+ */
 fun requestPermission(context: Context) {
     ActivityCompat.requestPermissions(context as Activity, permissions, 0)
 }
 
-//creates a unique pathname for the image files
+/**
+ * Creates a image file with a unique Filename
+ *
+ * @param context
+ * @return File the file with the unique path
+ *///creates a unique pathname for the image files
 @RequiresApi(Build.VERSION_CODES.N)
 @Throws(IOException::class)
 fun createImageFile(context:Context): File {
@@ -56,15 +71,27 @@ fun createImageFile(context:Context): File {
         storageDir /* directory */)
 }
 
-//methods to safely delete a file
+/**
+ * Exists method to check if the path exists
+ *
+ * @return
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 fun Path.exists(): Boolean = Files.exists(this)
 
-//wraps file directory
+/**
+ * Method to check if the the Path is a directory
+ *
+ * @return
+ *///wraps file directory
 @RequiresApi(Build.VERSION_CODES.O)
 fun Path.isFile(): Boolean = !Files.isDirectory(this)
 
-//file delete function
+/**
+ * Method to safely delete a Path
+ *
+ * @return true in success
+ */
 fun Path.delete(): Boolean {
     return if (isFile() && exists()) {
         //Actual delete operation
@@ -73,4 +100,21 @@ fun Path.delete(): Boolean {
     } else {
         false
     }
+}
+
+/**
+ * Method to parse a string array
+ *
+ * @param stringArrayResourceId
+ * @param context
+ * @return returns a String map with keyword and associate string
+ */
+fun parseStringArray(stringArrayResourceId: Int, context: Context): MutableMap<String, String> {
+    val stringArray: Array<String> = context.getResources().getStringArray(stringArrayResourceId)
+    val outputArray = mutableMapOf<String, String>()
+    for (entry in stringArray) {
+        val splitResult = entry.split("\\|".toRegex(), 2).toTypedArray()
+        outputArray.put(splitResult[0], splitResult[1])
+    }
+    return outputArray
 }

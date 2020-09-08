@@ -22,11 +22,22 @@ import java.nio.file.Paths
 
 //help function
 
+/**
+ * Help function to cast to RadFileDataClass
+ *
+ * @param ObjectClass
+ */
 inline fun <reified ObjectClass> genericType() =
     object : TypeToken<com.example.radioapp.RadFileDataClass>() {}.type
 
+
 /**
- * This Class displays a listView with ObjectClass Items. The Adapter is defined in the AdapterClass.
+ * Main activity which displays the start window with a listView of all the examination Items
+ * different functions to sort, mark and share the items are implemented. If an Item on the ListView
+ * gets clicked on the [ExaminationEditingActivity] gets called. The data if the ListItem Items is
+ * handled as [RadFileDataClass]
+ *
+ * @constructor Create empty Main activity
  */
 
 class MainActivity : AppCompatActivity() {
@@ -46,6 +57,12 @@ class MainActivity : AppCompatActivity() {
         android.Manifest.permission.READ_EXTERNAL_STORAGE
     )
 
+    /**
+     * method to check if the permissions are not granted
+     *
+     * @return Boolean
+     *
+     */
     private fun hasNoPermissions(): Boolean {
         return ContextCompat.checkSelfPermission(
             this,
@@ -59,6 +76,10 @@ class MainActivity : AppCompatActivity() {
         ) != PackageManager.PERMISSION_GRANTED
     }
 
+    /**
+     * Request permission method
+     *
+     */
     private fun requestPermission() {
         ActivityCompat.requestPermissions(this, permissions, 0)
     }
@@ -66,14 +87,23 @@ class MainActivity : AppCompatActivity() {
     //the variable for the adapter
     private lateinit var adapter: MainListAdapterClass
     private lateinit var listItems: MutableList<RadFileDataClass>
-    //private lateinit var highlightList:MutableList<Int>
 
 
+    /**
+     * method to create the options menue in the toolbar
+     * @param menue
+     * @return Boolean
+     */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menue,menu);
         return true
     }
 
+    /**
+     * method which gets called when an item on the menue gets clicked on
+     * @param item
+     * @return Boolean
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
         if (id == R.id.settings_action){
@@ -84,7 +114,10 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    //onCreate function of the Activity
+    /**
+     * creates an instance of the [MainActivity] class object
+     *
+     */
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -93,7 +126,6 @@ class MainActivity : AppCompatActivity() {
         //values of different Buttons
         val shareButton = findViewById<ImageButton>(R.id.share_Button)
         val searchButton = findViewById<ImageButton>(R.id.search_Button)
-
         val deleteButton = findViewById<ImageButton>(R.id.delete_Button)
         val saveButton = findViewById<Button>(R.id.save_Button)
         val favoriteButton = findViewById<ImageButton>(R.id.favorite_Button)
@@ -101,6 +133,7 @@ class MainActivity : AppCompatActivity() {
 
         //toggle value for the favorite Button to toggle bettwen date and favorite
         var toggle = false
+        //making the share and delete button invisible by default
         shareButton.visibility = View.INVISIBLE
         deleteButton.visibility = View.INVISIBLE
 
@@ -111,8 +144,6 @@ class MainActivity : AppCompatActivity() {
 
         //loading the data from File
         listItems = loadFromFile()
-//        var temp = IntArray(listItems.size) { _ -> -1 }
-//        highlightList = temp.toMutableList()
 
         //initializing the listView adapter
         adapter = MainListAdapterClass(this, R.layout.listview_item, listItems)
@@ -123,11 +154,15 @@ class MainActivity : AppCompatActivity() {
         listView.adapter = adapter
         listView.choiceMode = ListView.CHOICE_MODE_SINGLE
 
-        // opening the editing Activity when a click is performed on an existing listView Item
+        /**
+         * of a listView Item gets clicked on the [ExaminationEditingActivity] gets called on with
+         * the purpose if "editing"
+         *
+         */
         listView.setOnItemClickListener { parent, view, position, id ->
 
             val element: RadFileDataClass = parent.getItemAtPosition(position) as RadFileDataClass
-            val intent = Intent(this, NewListItem::class.java)
+            val intent = Intent(this, ExaminationEditingActivity::class.java)
 
 
             intent.putExtra("purpose", "editing")
@@ -138,7 +173,11 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-
+        /**
+         * if a long click is performed on an item the delete and share button are visible and the
+         * item gets selected
+         *
+         */
         listView.setOnItemLongClickListener { parent, view, position, id ->
             Toast.makeText(this, "Position Clicked:" + " " + position, Toast.LENGTH_SHORT).show()
             if (listView.isItemChecked(position)) {
@@ -154,18 +193,26 @@ class MainActivity : AppCompatActivity() {
             return@setOnItemLongClickListener (true)
         }
 
-        //TODO fill with life
+        /**
+         * item gets deleted on button click
+         */
         deleteButton.setOnClickListener {
             val itemId = listView.checkedItemPosition
             println("Test")
         }
-        //saving the listitem object to sharedPreferences on button click
+
+        /**
+         * the current data gets saved on button click
+         */
         saveButton.setOnClickListener {
             saveToFile()
         }
 
 
-        //sorting after favorites
+        /**
+         * toggle between sorting for favorites/date
+         */
+
         favoriteButton.setOnClickListener {
             if (toggle == false) {
                 adapter.sort(compareByDescending({ it.favorites }))
@@ -176,12 +223,16 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        //sortting after date
+        /**
+         * marks the most recent items of each examination type
+         * toggle between the marked and not marked
+         */
         var toggle_sort=false
         sortButton.setOnClickListener {
             //array with the position of the most recent type Item in the listView. The Index of the array
             //marks the position of the Type defined by the @values keyStringMap
             if(toggle_sort==false) {
+                //getting the positions of the items that are supposed to be marked in recentList
                 val recent = searchMostRecent()
                 var recentList = mutableListOf<Int>()
                 for (i in recent.indices) {
@@ -190,6 +241,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
+                //iterating through the recent list and setting them to highlighted
                 for (i in recentList.indices) {
                     val currentElement=listItems.get(recentList[i])
                     currentElement.highlight=true
@@ -198,9 +250,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 adapter.notifyDataSetChanged()
                 toggle_sort=true
+                //reversing highlight
             }else if (toggle_sort==true){
-                //temp= IntArray(listItems.size) { _ -> -1 }
-                //highlightList = temp.toMutableList()
+
                 for (i in listItems.indices){
                     val currentElement=listItems.get(i)
                     currentElement.highlight=false
@@ -217,16 +269,26 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    //Opening editing Activity when a click is performed on the new examination button
+    /**
+     * On new Item button click calls the [ExaminationEditingActivity] with the purpose new
+     *
+     * @param view the button which it is connected to
+     */
     fun onNewItemButton(view: View) {
         Toast.makeText(this@MainActivity, "You clicked me.", Toast.LENGTH_SHORT).show()
-        val intent = Intent(this, NewListItem::class.java)
+        val intent = Intent(this, ExaminationEditingActivity::class.java)
         intent.putExtra("purpose", "new")
         startActivityForResult(intent, NEW_ITEM)
     }
 
 
-    //the results which the MainActivityClass gets returned from the different Activities
+    /**
+     * return from the [ExaminationEditingActivity] after edit was performed or canceled or deleted
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @ExperimentalStdlibApi
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -238,8 +300,6 @@ class MainActivity : AppCompatActivity() {
 
                 val dataObject = data?.getJsonExtra("data", RadFileDataClass::class.java)
                 adapter.add(dataObject)
-                //highlightList.add(-1)
-                //restating the main activity
                 adapter.sort(compareByDescending({ it.date }))
                 saveToFile()
                 onRestart()
@@ -284,6 +344,11 @@ class MainActivity : AppCompatActivity() {
 
 
     }
+
+    /**
+     * method to save the current data to shared preferences
+     */
+
     private fun saveToFile(){
         val sharedPreferences = getSharedPreferences(SHARED_PREFERANCES, Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -293,6 +358,12 @@ class MainActivity : AppCompatActivity() {
         editor.apply()
     }
 
+    /**
+     * function which searches in the listView for the most recent Items of each type
+     *
+     * @return an array with the length of the current listView. If the item is the most recent
+     * of a type the value is 1 else -1
+     */
     @RequiresApi(Build.VERSION_CODES.O)
     fun searchMostRecent(): Array<Int?> {
         val res: Resources = resources
@@ -315,7 +386,12 @@ class MainActivity : AppCompatActivity() {
         return currentRecentItems
     }
 
-    //method load the list items from sharedPreferences
+    /**
+     * method to load the Data from file
+     *
+     * @return MurableList<RadFileDataClass> the examination data in a list
+     *
+     */
     private fun loadFromFile(): MutableList<RadFileDataClass> {
         val sharedPreferences = getSharedPreferences(SHARED_PREFERANCES, Context.MODE_PRIVATE)
         val gson = Gson()

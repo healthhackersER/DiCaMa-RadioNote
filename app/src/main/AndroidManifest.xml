@@ -20,7 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".keyword_dialogue"></activity>
-        <activity android:name=".CameraActivity" />
+        <activity android:name=".CameraEditingActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -32,7 +32,7 @@
                 android:resource="@xml/fileprovider" />
         </provider>
 
-        <activity android:name=".NewListItem" />
+        <activity android:name=".ExaminationEditingActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

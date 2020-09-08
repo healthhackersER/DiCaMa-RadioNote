@@ -15,6 +15,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.davemorrissey.labs.subscaleview.ImageSource
 import kotlinx.android.synthetic.main.activity_camera.*
 
+/**
+ * Recylcer adapter class implements an adapter for a recyclerView displayed
+ * in the [CameraEditingActivity]
+ *
+ * @property images the pathnames of the images in a list
+ * @property text the description of the images in text
+ * @property selection if the item is selected
+ * @property listener if the item is clicked on
+ * @constructor Create empty Recycler adapter
+ */
 class RecyclerAdapter(
     var images: MutableList<String>,
     private var text: MutableList<String>,
@@ -23,10 +33,17 @@ class RecyclerAdapter(
 ) :
     RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
 
-
+    /**
+     * get the Item at position
+     * @param position
+     * @return the Image as String (the path of the file)
+     */
     override fun getItemId(position: Int): Long = position.toLong()
 
-
+    /**
+     * method to create a viewHolder
+     * @return viewHolder
+     */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
         val v =
@@ -35,11 +52,17 @@ class RecyclerAdapter(
 
     }
 
-
+    /**
+     * gets the size of the Recyclerview
+     * @return size
+     */
     override fun getItemCount(): Int {
         return images.size
     }
 
+    /**
+     * method to bind the viewHolder to the view
+     */
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
 
@@ -50,10 +73,27 @@ class RecyclerAdapter(
 
     }
 
+    /**
+     * On item click listener create an interface for the item click listener
+     *
+     * @constructor Create empty On item click listener
+     */
     interface OnItemClickListener {
+        /**
+         * On item click behaviour defined in [CameraEditingActivity]
+         *
+         * @param position
+         */
         fun onItemClick(position: Int)
     }
 
+    /**
+     * View Holder class for the RecyclerViewer on [CameraEditingActivity]
+     *
+     * @constructor
+     *
+     * @param itemView
+     */
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
         View.OnClickListener {
         val itemImage: ImageView = itemView.findViewById(R.id.iv_image)

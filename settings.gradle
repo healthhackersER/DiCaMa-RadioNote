@@ -1,2 +1,10 @@
+//Dokka
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        jcenter()
+    }
+}
+//Dokka
 include ':app'
 rootProject.name = "RadioApp"

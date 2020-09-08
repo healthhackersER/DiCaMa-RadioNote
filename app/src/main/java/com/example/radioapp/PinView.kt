@@ -7,18 +7,35 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 //import com.davemorrissey.labs.subscaleview.test.R.drawable
 
 
+/**
+ * Pin view extends the big image viewer in [CameraEditingActivity] to draw pin markers
+ *
+ * @constructor
+ *
+ * @param context
+ * @param attr
+ */
 class PinView @JvmOverloads constructor(context: Context?, attr: AttributeSet? = null) :
     SubsamplingScaleImageView(context, attr) {
     private val paint = Paint()
     private val vPin = PointF()
     private var sPin: PointF? = null
     private var pin: Bitmap? = null
+
+    /**
+     * method to set the pin
+     *
+     * @param sPin
+     */
     fun setPin(sPin: PointF?) {
         this.sPin = sPin
         initialise()
         invalidate()
     }
 
+    /**
+     * initialize the [PinView] class
+     */
     private fun initialise() {
         val density = resources.displayMetrics.densityDpi.toFloat()
         pin = BitmapFactory.decodeResource(this.resources, R.drawable.pushpin_blue)
@@ -28,6 +45,11 @@ class PinView @JvmOverloads constructor(context: Context?, attr: AttributeSet? =
         pin = Bitmap.createScaledBitmap(localPin, w.toInt(), h.toInt(), true)
     }
 
+    /**
+     * draw the pin on the canvas
+     *
+     * @param canvas the image view which is supposed to be drawn on
+     */
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
