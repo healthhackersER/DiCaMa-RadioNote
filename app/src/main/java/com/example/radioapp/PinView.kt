@@ -20,6 +20,7 @@ class PinView @JvmOverloads constructor(context: Context?, attr: AttributeSet? =
     private val paint = Paint()
     private val vPin = PointF()
     private var sPin: PointF? = null
+    private var sPinArray: Array<PointF>? = null
     private var pin: Bitmap? = null
 
     /**
@@ -32,6 +33,11 @@ class PinView @JvmOverloads constructor(context: Context?, attr: AttributeSet? =
         initialise()
         invalidate()
     }
+    fun setPins(sPins : Array<PointF>?){
+        this.sPinArray = sPins
+        initialise()
+        invalidate()
+    }
 
     /**
      * initialize the [PinView] class
@@ -40,8 +46,8 @@ class PinView @JvmOverloads constructor(context: Context?, attr: AttributeSet? =
         val density = resources.displayMetrics.densityDpi.toFloat()
         pin = BitmapFactory.decodeResource(this.resources, R.drawable.pushpin_blue)
         var localPin=pin!!
-        val w = (density / 420f * localPin.width)/4
-        val h = (density / 420f * localPin.height)/4
+        val w = (density/420f * localPin.width)/4
+        val h = (density/420f * localPin.height)/4
         pin = Bitmap.createScaledBitmap(localPin, w.toInt(), h.toInt(), true)
     }
 
@@ -58,11 +64,19 @@ class PinView @JvmOverloads constructor(context: Context?, attr: AttributeSet? =
             return
         }
         paint.isAntiAlias = true
-        if (sPin != null && pin != null) {
-            sourceToViewCoord(sPin, vPin)
-            val vX = vPin.x - pin!!.width / 2
-            val vY = vPin.y + pin!!.height
-            canvas.drawBitmap(pin!!, vX, vY, paint)
+//        if (sPin != null && pin != null) {
+//            sourceToViewCoord(sPin, vPin)
+//            val vX = vPin.x - pin!!.width / 2
+//            val vY = vPin.y + pin!!.height
+//            canvas.drawBitmap(pin!!, vX, vY, paint)
+//        }
+        if (sPinArray != null && pin != null) {
+            for (i in sPinArray!!.indices){
+                sourceToViewCoord(sPinArray!![i], vPin)
+                val vX = vPin.x - pin!!.width / 2
+                val vY = vPin.y - pin!!.height
+                canvas.drawBitmap(pin!!, vX, vY, paint)
+            }
         }
     }
 

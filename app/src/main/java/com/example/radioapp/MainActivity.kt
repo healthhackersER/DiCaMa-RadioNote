@@ -127,7 +127,6 @@ class MainActivity : AppCompatActivity() {
         val shareButton = findViewById<ImageButton>(R.id.share_Button)
         val searchButton = findViewById<ImageButton>(R.id.search_Button)
         val deleteButton = findViewById<ImageButton>(R.id.delete_Button)
-        val saveButton = findViewById<Button>(R.id.save_Button)
         val favoriteButton = findViewById<ImageButton>(R.id.favorite_Button)
         val sortButton = findViewById<ImageButton>(R.id.sort_Button)
 
@@ -201,13 +200,6 @@ class MainActivity : AppCompatActivity() {
             println("Test")
         }
 
-        /**
-         * the current data gets saved on button click
-         */
-        saveButton.setOnClickListener {
-            saveToFile()
-        }
-
 
         /**
          * toggle between sorting for favorites/date
@@ -263,6 +255,8 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+
+
 
 
 
@@ -346,10 +340,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * method to save the current data to shared preferences
+     * method to save the current data to shared preferences (gets called by the checkBox layout)
      */
 
-    private fun saveToFile(){
+    fun saveToFile(){
         val sharedPreferences = getSharedPreferences(SHARED_PREFERANCES, Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         val gson = Gson()

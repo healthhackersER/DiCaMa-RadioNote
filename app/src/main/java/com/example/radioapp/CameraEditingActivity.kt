@@ -3,6 +3,8 @@ package com.example.radioapp
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Bitmap.createScaledBitmap
 import android.graphics.BitmapFactory
 import android.graphics.PointF
 import android.os.Bundle
@@ -11,10 +13,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
-import android.widget.ImageButton
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,6 +22,9 @@ import com.davemorrissey.labs.subscaleview.ImageSource
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.android.synthetic.main.activity_camera.*
 import java.nio.file.Paths
+
+
+import java.util.logging.Handler
 
 /**
  * Camera editing activity shows a list of taken images to an examination Item in a horizontal view
@@ -38,8 +40,11 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
     private lateinit var adapter: RecyclerAdapter
     private lateinit var currentPhotoImages: MutableList<String>
     private lateinit var currentPhotoDescription: MutableList<String>
-    private lateinit var currentMarker: MutableList<FloatArray>
+    private lateinit var currentMarker: MutableList<MutableList<FloatArray>>
     private lateinit var currentSelection: MutableList<Boolean>
+
+    //holds the state of the marker button
+    private var markerToggle = false
 
     //holds the position for the selection
     private var currentPosition = -1
@@ -61,21 +66,34 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
     }
 
     //draws an marker at the position saved in lastTouchDownXY
-    var clickListener: View.OnClickListener =
+    private var clickListener: View.OnClickListener =
         View.OnClickListener { // retrieve the stored coordinates
             if (currentPhotoImages.size >= 1) {
                 val x = lastTouchDownXY!![0]
                 val y = lastTouchDownXY!![1]
 
                 // use the coordinates to draw a pin
-                currentMarker[currentPosition].set(0, x)
-                currentMarker[currentPosition].set(1, y)
+                if (markerToggle==true && currentPosition!=-1) {
+                    currentMarker[currentPosition].add(floatArrayOf(-10000f, -10000f))
+                    val lastIndex = currentMarker[currentPosition].lastIndex
+                    currentMarker[currentPosition][lastIndex][0] = x
+                    currentMarker[currentPosition][lastIndex][1] = y
+                    val pointArray= listToArray(currentMarker[currentPosition])
 
-                big_imageView.setPin(PointF(x, y))
+//                    var pointList = mutableListOf<PointF>()
+//                    for (i in currentMarker[currentPosition].indices){
+//                        pointList.add(PointF(currentMarker[currentPosition][i][0],currentMarker[currentPosition][i][1]))
+//                    }
+//                    val pointArray=pointList.toTypedArray()
+                    big_imageView.setPins(pointArray)
+                }
+
+
             }
 
 
         }
+    lateinit var recyclerView: RecyclerView
 
     /**
      * Initialize the Camera Editing activity
@@ -97,14 +115,13 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
         currentSelection = MutableList(currentPhotoImages.size) { false }
 
         //setting up values for the different buttons
-        val photoButton = findViewById<ImageButton>(R.id.camera_Button)
-        val deleteCameraButton = findViewById<ImageButton>(R.id.delete_camera_button)
+
         val okCameraButton = findViewById<Button>(R.id.ok_camera_button)
         val editBildbeschreibung = findViewById<TextView>(R.id.edit_text_Bildbeschreibung)
 
 
         //setting layout manager to horizontal
-        val recyclerView = findViewById<RecyclerView>(R.id.rv_recyclerview)
+        recyclerView = findViewById<RecyclerView>(R.id.rv_recyclerview)
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         recyclerView.layoutManager = layoutManager
         adapter = RecyclerAdapter(
@@ -114,19 +131,16 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
         recyclerView.adapter = adapter
 
         //setting up the initial image in the big image viewer
-        if (currentPhotoImages.size >= 1) {
-            simulateClick(0)
-        } else if (currentPhotoImages.size == 0) {
-            val defaultImage = BitmapFactory.decodeResource(this.resources, R.drawable.xray_flower)
-            big_imageView.setImage(ImageSource.bitmap(defaultImage))
-        }
+        val defaultImage = BitmapFactory.decodeResource(this.resources, R.drawable.xray_flower)
+        big_imageView.setImage(ImageSource.bitmap(defaultImage))
+
 
         //setting the marker functions to the big image viewer
         big_imageView.setOnTouchListener(touchListener);
         big_imageView.setOnClickListener(clickListener);
 
         //taking a new image
-        photoButton.setOnClickListener {
+        ca_add_image.setOnClickListener {
 
             //check permissions
             if (hasNoPermissions(this)) {
@@ -143,17 +157,15 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
 
             //starting the camera activity with check if it is possible
             if (takePictureIntent.resolveActivity(packageManager) != null) {
-                startActivityForResult(takePictureIntent, ExaminationEditingActivity.REQUEST_TAKE_PHOTO)
+                startActivityForResult(
+                    takePictureIntent,
+                    ExaminationEditingActivity.REQUEST_TAKE_PHOTO
+                )
             } else {
                 Toast.makeText(this, "Unable to open camera", Toast.LENGTH_SHORT).show()
             }
             currentImagePath = photoFile.path.toString()
 
-        }
-
-        //delete the currently selected image item
-        deleteCameraButton.setOnClickListener {
-            onDeleteImage()
         }
 
         //finishing the Camera editing activity
@@ -165,8 +177,34 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
         editBildbeschreibung.setOnClickListener {
             editCameraDialog(editBildbeschreibung, ExaminationEditingActivity.EDIT_TEXT)
         }
+        ca_toggle_button.setOnCheckedChangeListener{_, isChecked ->
+            markerToggle = isChecked
+        }
 
+        ca_delete_marker.setOnClickListener {
+            deleteLastMarker()
+        }
 
+        window.decorView.post {
+            if (currentPhotoImages.size >= 1) {
+                simulateClick(0)
+            }
+        }
+    }
+
+    /**
+     * removes the last Marker of the currently selected Item
+     *
+     */
+    private fun deleteLastMarker(){
+        if(currentPosition!=-1){
+            if(currentMarker[currentPosition].size>=1){
+                currentMarker[currentPosition].removeLast()
+                val pointArray=listToArray(currentMarker[currentPosition])
+                big_imageView.setPins(pointArray)
+            }
+
+        }
     }
 
     /**
@@ -220,16 +258,64 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
     override fun onItemClick(position: Int) {
 
         val currentImage = BitmapFactory.decodeFile(currentPhotoImages[position])
-        big_imageView.setImage(ImageSource.bitmap(currentImage))
-        currentSelection[currentPosition] = false
+        //big_imageView.setImage(ImageSource.bitmap(currentImage))
+        val scaledImage= createScaledBitmap(currentImage,big_imageView.width,big_imageView.height,false)
+        big_imageView.setImage(ImageSource.bitmap(scaledImage))
+        if (currentPosition!=-1){
+            currentSelection[currentPosition] = false
+        }
         currentSelection[position] = true
         currentPosition = position
         adapter.notifyDataSetChanged()
         edit_text_Bildbeschreibung.text = currentPhotoDescription[position]
-        val coordinates = currentMarker[position]
-        big_imageView.setPin(PointF(coordinates[0], coordinates[1]))
+        val pointArray= listToArray(currentMarker[position])
+        big_imageView.setPins(pointArray)
 
     }
+
+    /**
+     * deletes the RecyclerView Item at position
+     *
+     * @param position as Int
+     */
+    override fun onButtonClick(position: Int) {
+        if (position==currentPosition) {
+            if (currentPosition != -1) {
+                val path = Paths.get(currentPhotoImages[currentPosition])
+                if (path.delete()) {
+                    println("Deleted ${path.fileName}")
+                } else {
+                    println("Could not delete ${path.fileName}")
+                }
+                currentPhotoImages.removeAt(currentPosition)
+                currentPhotoDescription.removeAt(currentPosition)
+                currentMarker.removeAt(currentPosition)
+                currentSelection.removeAt(currentPosition)
+                if (currentPosition - 1 != -1 && currentPosition != 0) {
+                    simulateClick(currentPosition - 1)
+                } else if (currentPosition == 0 && currentPhotoImages.size >= 1) {
+                    simulateClick(0)
+                } else if (currentPosition == 0 && currentPhotoImages.size == 0) {
+                    currentPosition = -1
+                }
+                adapter.notifyDataSetChanged()
+            }
+        }else{
+            val path = Paths.get(currentPhotoImages[position])
+            if (path.delete()) {
+                println("Deleted ${path.fileName}")
+            } else {
+                println("Could not delete ${path.fileName}")
+            }
+            currentPhotoImages.removeAt(position)
+            currentPhotoDescription.removeAt(position)
+            currentMarker.removeAt(position)
+            currentSelection.removeAt(position)
+            adapter.notifyDataSetChanged()
+        }
+    }
+
+
     /**
      * get the images from the Camera App
      *
@@ -242,11 +328,14 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
         if (requestCode == ExaminationEditingActivity.REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
             val takenImage = BitmapFactory.decodeFile(currentImagePath)
             //draws the pin outside of the big image viewer to reset it
-            big_imageView.setImage(ImageSource.bitmap(takenImage))
-            big_imageView.setPin(PointF(-10000f, -10000f))
+            //big_imageView.setImage(ImageSource.bitmap(takenImage))
+            val scaledImage=createScaledBitmap(takenImage,big_imageView.width,big_imageView.height,false)
+            big_imageView.setImage(ImageSource.bitmap(scaledImage))
+            val tempArray=arrayOf(PointF(-10000f, -10000f))
+            big_imageView.setPins(tempArray)
             currentPhotoImages.add(currentImagePath)
             currentPhotoDescription.add("")
-            currentMarker.add(floatArrayOf(-10000f, -10000f))
+            currentMarker.add(mutableListOf<FloatArray>())
             if (currentPosition != -1) {
                 currentSelection[currentPosition] = false
             }
@@ -254,10 +343,13 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
             edit_text_Bildbeschreibung.text = ""
             currentPosition = currentPhotoDescription.size - 1
             adapter.notifyDataSetChanged()
+            //scrolling to position
+            recyclerView.scrollToPosition(currentPosition)
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
-        onRestart()
+        onResume()
+
     }
 
     /**
@@ -277,10 +369,13 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
         try {
             currentPosition = position
             val currentImage = BitmapFactory.decodeFile(currentPhotoImages[position])
-            big_imageView.setImage(ImageSource.bitmap(currentImage))
+            //big_imageView.setImage(ImageSource.bitmap(currentImage))
+            val scaledImage=createScaledBitmap(currentImage,big_imageView.width,big_imageView.height,false)
+            big_imageView.setImage(ImageSource.bitmap(scaledImage))
             currentSelection[currentPosition] = true
-            val coordinates = currentMarker[position]
-            big_imageView.setPin(PointF(coordinates[0], coordinates[1]))
+            val pointArray=listToArray(currentMarker[position])
+            big_imageView.setPins(pointArray)
+
             edit_text_Bildbeschreibung.text = currentPhotoDescription[position]
             adapter.notifyDataSetChanged()
         } catch (e: Exception) {
@@ -342,6 +437,7 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
 
 
     }
+
 
 
 }

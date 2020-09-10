@@ -31,7 +31,8 @@ class MainListAdapterClass(
 
     @RequiresApi(Build.VERSION_CODES.O)
     var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-
+    //CAVE: tightly coupled
+    val castedContext = context as MainActivity
     /**
      * gets the size of the Recyclerview
      * @return size
@@ -105,6 +106,7 @@ class MainListAdapterClass(
         checkbox.isChecked = object_item.favorites
         checkbox.setOnClickListener {
             object_item.favorites = checkbox.isChecked
+            castedContext.saveToFile()
         }
 
         //setting the highlights from highlight

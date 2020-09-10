@@ -41,7 +41,7 @@ class ExaminationEditingActivity : AppCompatActivity() {
     //variable for the pathname of the photo taken by the camera activity, needs to be declared here in order for all class function to be able to access it
     var currentPhotoPath: MutableList<String> = mutableListOf<String>()
     var currentPhotoDescription: MutableList<String> = mutableListOf()
-    var currentMarker: MutableList<FloatArray> = mutableListOf()
+    var currentMarker: MutableList< MutableList<FloatArray>> = mutableListOf()
     private lateinit var myStringMap: MutableMap<String, String>
 
     var clickList = mutableListOf<Any>()
@@ -111,7 +111,7 @@ class ExaminationEditingActivity : AppCompatActivity() {
         val okButton = findViewById<Button>(R.id.edit_ok_Button)
         val cancelButton = findViewById<Button>(R.id.edit_cancel_Button)
         val deleteButton = findViewById<ImageButton>(R.id.edit_delete_Button)
-        val photoButton = findViewById<ImageButton>(R.id.edit_photo_Button)
+
 
 
         val purpose = intent.getStringExtra("purpose")
@@ -322,17 +322,6 @@ class ExaminationEditingActivity : AppCompatActivity() {
 
             startActivityForResult(intent, REQUEST_IMAGE_EDITOR)
         }
-
-        /**
-         * when the cameraButton is clicked on the CameraEditingActivity gets started
-         */
-        photoButton.setOnClickListener {
-            val intent = Intent(this, CameraEditingActivity::class.java)
-            val imageData = ImageDataClass(currentPhotoPath, currentPhotoDescription, currentMarker)
-            intent.putExtraJson("imageData", imageData)
-            startActivityForResult(intent, REQUEST_IMAGE_EDITOR)
-        }
-
 
 
         /**

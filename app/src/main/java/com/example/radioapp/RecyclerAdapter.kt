@@ -47,7 +47,8 @@ class RecyclerAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
         val v =
-            LayoutInflater.from(parent.context).inflate(R.layout.recycler_view_item, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.camera_listview_item, parent, false)
+
         return ViewHolder(v)
 
     }
@@ -70,7 +71,6 @@ class RecyclerAdapter(
         holder.itemImage.setImageBitmap(currentImage)
         holder.itemView.isActivated = selection[position] == true
 
-
     }
 
     /**
@@ -85,6 +85,7 @@ class RecyclerAdapter(
          * @param position
          */
         fun onItemClick(position: Int)
+        fun onButtonClick( position:Int)
     }
 
     /**
@@ -96,11 +97,21 @@ class RecyclerAdapter(
      */
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
         View.OnClickListener {
-        val itemImage: ImageView = itemView.findViewById(R.id.iv_image)
+        val itemImage: ImageView = itemView.findViewById(R.id.camera_list_image)
+        private val deleteButton: ImageButton= itemView.findViewById(R.id.delete_list_image_button)
+
+
 
 
         init {
             itemView.setOnClickListener(this)
+            deleteButton.setOnClickListener {
+                val position= adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    listener.onButtonClick(position)
+                }
+            }
+
         }
 
         override fun onClick(p0: View?) {

@@ -10,5 +10,5 @@ package com.example.radioapp
  * @constructor Create empty Image data class
  */
 data class ImageDataClass (val imageFiles: MutableList<String>,
-                           val imageDescription: MutableList<String>, val marker: MutableList<FloatArray>
+                           val imageDescription: MutableList<String>, val marker: MutableList<MutableList<FloatArray>>
 )

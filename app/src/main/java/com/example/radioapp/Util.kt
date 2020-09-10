@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.PointF
 import android.icu.text.SimpleDateFormat
 import android.os.Build
 import android.os.Environment
@@ -100,6 +101,20 @@ fun Path.delete(): Boolean {
     } else {
         false
     }
+}
+
+/**
+ * Method to convert a mutableList of float Arrays to an Array of PointF
+ *
+ * @param list
+ * @return pountArray
+ */
+fun listToArray(list:MutableList<FloatArray>):Array<PointF>{
+    var pointList = mutableListOf<PointF>()
+    for (i in list.indices){
+        pointList.add(PointF(list[i][0],list[i][1]))
+    }
+    return pointList.toTypedArray()
 }
 
 /**
