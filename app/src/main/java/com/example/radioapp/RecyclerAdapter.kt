@@ -1,19 +1,12 @@
 package com.example.radioapp
 
 import android.graphics.BitmapFactory
-import android.util.SparseBooleanArray
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.TextView
-import androidx.recyclerview.selection.ItemDetailsLookup
-import androidx.recyclerview.selection.SelectionTracker
 import androidx.recyclerview.widget.RecyclerView
-import com.davemorrissey.labs.subscaleview.ImageSource
-import kotlinx.android.synthetic.main.activity_camera.*
 
 /**
  * Recylcer adapter class implements an adapter for a recyclerView displayed
@@ -97,7 +90,7 @@ class RecyclerAdapter(
      */
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
         View.OnClickListener {
-        val itemImage: ImageView = itemView.findViewById(R.id.camera_list_image)
+        val itemImage: ImageView = itemView.findViewById(R.id.cl_imageView)
         private val deleteButton: ImageButton= itemView.findViewById(R.id.delete_list_image_button)
 
 

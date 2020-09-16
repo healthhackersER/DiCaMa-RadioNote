@@ -2,7 +2,6 @@ package com.example.radioapp
 
 import android.Manifest
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
@@ -42,6 +41,7 @@ class ExaminationEditingActivity : AppCompatActivity() {
     var currentPhotoPath: MutableList<String> = mutableListOf<String>()
     var currentPhotoDescription: MutableList<String> = mutableListOf()
     var currentMarker: MutableList< MutableList<FloatArray>> = mutableListOf()
+    var currentImageMarked: MutableList<String> = mutableListOf()
     private lateinit var myStringMap: MutableMap<String, String>
 
     var clickList = mutableListOf<Any>()
@@ -108,16 +108,16 @@ class ExaminationEditingActivity : AppCompatActivity() {
         myStringMap = parseStringArray(R.array.key_string_array, this)
 
         //variables and values for different buttons, textfields ect.
-        val okButton = findViewById<Button>(R.id.edit_ok_Button)
-        val cancelButton = findViewById<Button>(R.id.edit_cancel_Button)
-        val deleteButton = findViewById<ImageButton>(R.id.edit_delete_Button)
+        val okButton = findViewById<Button>(R.id.ee_ok_button)
+        val cancelButton = findViewById<Button>(R.id.ee_cancel_button)
+        val deleteButton = findViewById<ImageButton>(R.id.ee_delete_button)
 
 
 
         val purpose = intent.getStringExtra("purpose")
-        val editAblageort = findViewById<TextView>(R.id.edit_Ablageort)
-        val editBeurteilung = findViewById<TextView>(R.id.edit_Beurteilung)
-        val editNotiz = findViewById<TextView>(R.id.edit_Notiz)
+        val editAblageort = findViewById<TextView>(R.id.ee_storage_editText)
+        val editBeurteilung = findViewById<TextView>(R.id.ee_evaluation_textEdit)
+        val editNotiz = findViewById<TextView>(R.id.ee_note_textEdit)
         val editDate = findViewById<TextView>(R.id.edit_Date)
         val editBeschreibung = findViewById<TextView>(R.id.edit_Beschreibung)
         var spinner_selection: Int? = null
@@ -188,22 +188,23 @@ class ExaminationEditingActivity : AppCompatActivity() {
             val dateFormatted = objectClass!!.date?.format(formatter)
             edit_Date.setText(dateFormatted.toString())
             favorites = objectClass.favorites
-            edit_Ablageort.setText(objectClass!!.storage)
-            edit_Beurteilung.setText(objectClass!!.evaluation)
-            edit_Notiz.setText(objectClass!!.note)
+            ee_storage_editText.setText(objectClass!!.storage)
+            ee_evaluation_textEdit.setText(objectClass!!.evaluation)
+            ee_note_textEdit.setText(objectClass!!.note)
             currentPhotoPath = objectClass.image.imageFiles!!
             currentPhotoDescription = objectClass.image.imageDescription!!
             currentMarker = objectClass.image.marker!!
+            currentImageMarked=objectClass.image.imageMarked!!
 
 
             //showing the image if the examination has an image
             if (objectClass.image.imageFiles.size >= 1) {
                 val currentImage = BitmapFactory.decodeFile(objectClass.image.imageFiles[0])
-                imageView.setImageBitmap(currentImage)
+                ee_imageView.setImageBitmap(currentImage)
             } else if (objectClass.image.imageFiles.size == 0) {
                 val defaultImage =
                     BitmapFactory.decodeResource(this.resources, R.drawable.xray_flower)
-                imageView.setImageBitmap(defaultImage)
+                ee_imageView.setImageBitmap(defaultImage)
             }
 
             //setting up the spinner
@@ -219,7 +220,7 @@ class ExaminationEditingActivity : AppCompatActivity() {
         //if the activity was started by the new exmamination button set up default image
         if (purpose == "new") {
             val defaultImage = BitmapFactory.decodeResource(this.resources, R.drawable.xray_flower)
-            imageView.setImageBitmap(defaultImage)
+            ee_imageView.setImageBitmap(defaultImage)
         }
 
 
@@ -229,9 +230,9 @@ class ExaminationEditingActivity : AppCompatActivity() {
         okButton.setOnClickListener {
             val nameExamination = edit_Beschreibung.text.toString()
             val dateExamination = edit_Date.text.toString()
-            val storageData = edit_Ablageort.text.toString()
-            val evaluationData = edit_Beurteilung.text.toString()
-            val noteData = edit_Notiz.text.toString()
+            val storageData = ee_storage_editText.text.toString()
+            val evaluationData = ee_evaluation_textEdit.text.toString()
+            val noteData = ee_note_textEdit.text.toString()
             val favoritesOut = favorites
 
             //check if description field is entered
@@ -271,7 +272,7 @@ class ExaminationEditingActivity : AppCompatActivity() {
                 storageData,
                 evaluationData,
                 noteData,
-                ImageDataClass(currentPhotoPath, currentPhotoDescription, currentMarker),
+                ImageDataClass(currentPhotoPath, currentPhotoDescription, currentMarker,currentImageMarked),
                 favoritesOut,
                 highlight = false
             )
@@ -315,9 +316,9 @@ class ExaminationEditingActivity : AppCompatActivity() {
         /**
          * when the imageViewer is clicked on the CameraEditingActivity gets started
          */
-        imageView.setOnClickListener {
+        ee_imageView.setOnClickListener {
             val intent = Intent(this, CameraEditingActivity::class.java)
-            val imageData = ImageDataClass(currentPhotoPath, currentPhotoDescription, currentMarker)
+            val imageData = ImageDataClass(currentPhotoPath, currentPhotoDescription, currentMarker,currentImageMarked)
             intent.putExtraJson("imageData", imageData)
 
             startActivityForResult(intent, REQUEST_IMAGE_EDITOR)
@@ -357,8 +358,8 @@ class ExaminationEditingActivity : AppCompatActivity() {
             INPUT_METHOD_SERVICE
         ) as InputMethodManager
 
-        val text = bottomSheetDialog.findViewById<TextView>(R.id.editTextTextPersonName)
-        val next = bottomSheetDialog.findViewById<ImageButton>(R.id.imageButton)
+        val text = bottomSheetDialog.findViewById<TextView>(R.id.bs_edit_editText)
+        val next = bottomSheetDialog.findViewById<ImageButton>(R.id.bs_done_button)
         val hint = bottomSheetDialog.findViewById<TextView>(R.id.textHint)
         //showing the hint of the TextView
         hint!!.text = target.hint
@@ -422,7 +423,7 @@ class ExaminationEditingActivity : AppCompatActivity() {
     /**
      * Check the target view for keywords defined in thisStringMap and sets up a clickable
      * marked span the textview for the keyword. The clickable Keyword then gets connected to
-     * an [keyword_dialogue] activity which displayed the text defined in thisStringMap
+     * an [KeywordDialogue] activity which displayed the text defined in thisStringMap
      *
      * @param target the targeted textView
      * @param thisStringMap the StringMap
@@ -450,14 +451,14 @@ class ExaminationEditingActivity : AppCompatActivity() {
                 val clickableSpan = object : ClickableSpan() {
                     @Override
                     /**
-                     * Method to call a  [keyword_dialogue] when the keyword gets clicked on
+                     * Method to call a  [KeywordDialogue] when the keyword gets clicked on
                      * @param p0 the clickable keyword
                      */
                     override fun onClick(p0: View) {
                         //Do nothing
                         val message = thisStringMap.getValue(word)
                         val intent =
-                            Intent(this@ExaminationEditingActivity, keyword_dialogue::class.java)
+                            Intent(this@ExaminationEditingActivity, KeywordDialogue::class.java)
                         intent.putExtra("message", message)
                         startActivityForResult(intent, REQUEST_KEYWORD_DIALOGUE)
 
@@ -505,12 +506,14 @@ class ExaminationEditingActivity : AppCompatActivity() {
             currentPhotoPath = currentData!!.imageFiles
             currentPhotoDescription = currentData.imageDescription
             currentMarker = currentData.marker
+            currentImageMarked=currentData.imageMarked
             if (currentPhotoPath.size >= 1) {
                 try {
                     val takenImage = BitmapFactory.decodeFile(currentPhotoPath[0])
-                    imageView.setImageBitmap(takenImage)
+                    ee_imageView.setImageBitmap(takenImage)
                 } catch (e: Exception) {
-                    println("Exception in onActivityResult")
+                    //if anything goes wrong causing exception, get and show exception message
+                    Toast.makeText(this@ExaminationEditingActivity, e.message, Toast.LENGTH_LONG).show()
                 }
 
 

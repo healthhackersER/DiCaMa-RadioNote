@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
 
     android:layout_height="match_parent"
-    tools:context=".keyword_dialogue">
+    tools:context=".KeywordDialogue">
 
 
     <ScrollView
@@ -23,7 +23,7 @@
                 android:id="@+id/kwd_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="TextView" />
+                android:text="@string/placeholder" />
 
         </LinearLayout>
     </ScrollView>
@@ -35,7 +35,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:text="Zurück"
+        android:text="@string/back"
         tools:layout_editor_absoluteY="19dp" />
 
     <Space

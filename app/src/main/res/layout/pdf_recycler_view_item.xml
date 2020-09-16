@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/pdf_recycler_imageView"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            tools:srcCompat="@tools:sample/avatars"
+            android:contentDescription="@string/image" />
+
+        <TextView
+            android:id="@+id/pdf_recycler_text"
+            android:layout_width="140dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/image_description" />
+
+        <LinearLayout
+            android:layout_width="78dp"
+            android:layout_height="131dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <CheckBox
+                android:id="@+id/pdf_recycler_checkImage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/include_image" />
+
+            <CheckBox
+                android:id="@+id/pdf_recycler_checkMarker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/include_markers" />
+
+            <CheckBox
+                android:id="@+id/pdf_recycler_checkImageDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/include_description" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

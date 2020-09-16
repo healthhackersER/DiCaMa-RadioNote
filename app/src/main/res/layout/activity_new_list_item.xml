@@ -7,18 +7,6 @@
     tools:context=".ExaminationEditingActivity"
     android:background="@drawable/background_item_selection">
 
-<!--    <EditText-->
-<!--        android:id="@+id/edit_Beschreibung"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:ems="10"-->
-<!--        android:hint="Kurzbeschreibung"-->
-<!--        android:imeOptions="actionDone"-->
-<!--        android:inputType="textPersonName"-->
-<!--        app:layout_constraintEnd_toStartOf="@+id/edit_Date"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
-
     <LinearLayout
         android:id="@+id/verticalLayout"
         android:layout_width="match_parent"
@@ -35,7 +23,7 @@
             android:layout_height="wrap_content"
 
             android:clickable="true"
-            android:hint="Kurzbeschreibung"
+            android:hint="@string/short_description"
             android:paddingBottom="4dp"
             android:text=""
             android:textColor="#000000"
@@ -46,7 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
-            android:hint="dd/mm/yyyy"
+            android:hint="@string/dd_mm_yyyy"
             android:paddingBottom="4dp"
             android:text=""
             android:textColor="#000000"
@@ -57,7 +45,7 @@
             android:id="@+id/text_Modality"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Modalität" />
+            android:text="@string/type" />
 
         <Spinner
             android:id="@+id/spinner"
@@ -65,16 +53,6 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <!--    <EditText-->
-<!--        android:id="@+id/edit_Date"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:ems="10"-->
-<!--        android:hint="dd.mm.yy"-->
-<!--        android:inputType="date"-->
-<!--        android:imeOptions="actionDone"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="0dp"
@@ -97,36 +75,20 @@
                 android:orientation="horizontal">
 
                 <ImageView
-                    android:id="@+id/imageView"
+                    android:id="@+id/ee_imageView"
                     android:layout_width="214dp"
                     android:layout_height="212dp"
                     android:layout_marginTop="8dp"
                     android:clickable="true"
                     android:focusable="true"
-                    tools:srcCompat="@tools:sample/avatars" />
+                    tools:srcCompat="@tools:sample/avatars"
+                    android:contentDescription="@string/image" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
-<!--                    <TextView-->
-<!--                        android:id="@+id/text_image"-->
-<!--                        android:layout_width="wrap_content"-->
-<!--                        android:layout_height="37dp"-->
-<!--                        android:clickable="true"-->
-
-<!--                        android:text="Bildbeschreibung" />-->
-
-
-<!--                    <EditText-->
-<!--                        android:id="@+id/edit_Bildbeschreibung"-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="wrap_content"-->
-<!--                        android:ems="10"-->
-<!--                        android:hint="Bildbeschreibung"-->
-<!--                        android:imeOptions="actionDone"-->
-<!--                        android:inputType="textLongMessage|textAutoComplete" />-->
 
                     <androidx.constraintlayout.widget.Guideline
                         android:id="@+id/guideline"
@@ -139,89 +101,61 @@
             </LinearLayout>
 
             <TextView
-                android:id="@+id/text_Ablageort"
+                android:id="@+id/ee_storage_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Ablageort" />
+                android:text="@string/storage" />
 
             <TextView
-                android:id="@+id/edit_Ablageort"
+                android:id="@+id/ee_storage_editText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:clickable="true"
-                android:hint="Edit Ablageort"
+                android:hint="@string/edit_storage"
                 android:text=""
                 android:textColor="#000000"
                 android:textSize="16sp" />
 
-            <!--            <EditText-->
-            <!--                android:id="@+id/edit_Ablageort"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginTop="8dp"-->
-            <!--                android:autofillHints=""-->
-            <!--                android:ems="10"-->
-            <!--                android:hint="Ablageort"-->
-            <!--                android:imeOptions="actionDone"-->
-            <!--                android:inputType="textLongMessage|textAutoComplete" />-->
 
             <TextView
-                android:id="@+id/text_Beurteilung"
+                android:id="@+id/ee_evaluation_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Beurteilung" />
+                android:text="@string/evaluation" />
 
             <TextView
-                android:id="@+id/edit_Beurteilung"
+                android:id="@+id/ee_evaluation_textEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:clickable="true"
-                android:hint="Edit Beurteilung"
+                android:hint="@string/edit_evaluation"
                 android:text=""
                 android:textColor="#000000"
                 android:textSize="16sp" />
 
-            <!--            <EditText-->
-            <!--                android:id="@+id/edit_Beurteilung"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginTop="8dp"-->
-            <!--                android:ems="10"-->
-            <!--                android:hint="Beurteilung"-->
-            <!--                android:imeOptions="actionDone"-->
-            <!--                android:inputType="textLongMessage|textAutoComplete" />-->
 
             <TextView
-                android:id="@+id/text_Notiz"
+                android:id="@+id/ee_note_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Notiz" />
+                android:text="@string/note" />
 
             <TextView
-                android:id="@+id/edit_Notiz"
+                android:id="@+id/ee_note_textEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:clickable="true"
-                android:hint="Edit Notiz"
+                android:hint="@string/edit_note"
                 android:text=""
                 android:textColor="#000000"
                 android:textSize="16sp" />
 
-            <!--            <EditText-->
-            <!--                android:id="@+id/edit_Notiz"-->
-            <!--                android:layout_width="match_parent"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_marginTop="8dp"-->
-            <!--                android:ems="10"-->
-            <!--                android:hint="Notiz"-->
-            <!--                android:imeOptions="actionDone"-->
-            <!--                android:inputType="textLongMessage|textAutoComplete" />-->
 
         </LinearLayout>
     </ScrollView>
@@ -239,25 +173,24 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <ImageButton
-            android:id="@+id/edit_delete_Button"
+            android:id="@+id/ee_delete_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@android:drawable/ic_menu_delete" />
+            app:srcCompat="@android:drawable/ic_menu_delete"
+            android:contentDescription="@string/delete" />
 
         <Button
-            android:id="@+id/edit_cancel_Button"
+            android:id="@+id/ee_cancel_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:text="Cancel" />
+            android:text="@string/cancel" />
 
         <Button
-            android:id="@+id/edit_ok_Button"
+            android:id="@+id/ee_ok_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
-            android:text="Ok" />
+            android:text="@string/ok" />
 
     </LinearLayout>
 

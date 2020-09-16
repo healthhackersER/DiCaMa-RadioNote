@@ -48,6 +48,10 @@ class MainActivity : AppCompatActivity() {
         const val SHARED_PREFERANCES = "shared_preferences"
         const val KEY_PATH = "radioApp"
         const val REQUEST_IMAGE_CAPTURE = 3
+        const val TEST=7
+        const val CREATE_PDF =8
+        const val VIEW_PDF=9
+        const val STORAGE_CODE=10
     }
 
     //Checking for the permissions at runtime methods
@@ -142,7 +146,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         //loading the data from File
-        listItems = loadFromFile()
+        try {
+            listItems = loadFromFile()
+        }catch (e: Exception) {
+            //if anything goes wrong causing exception, get and show exception message
+            Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
+        }
 
         //initializing the listView adapter
         adapter = MainListAdapterClass(this, R.layout.listview_item, listItems)
@@ -167,9 +176,12 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("purpose", "editing")
             intent.putExtra("position", position)
             intent.putExtraJson("data", element)
-
-            startActivityForResult(intent, EDIT_ITEM)
-
+            try {
+                startActivityForResult(intent, EDIT_ITEM)
+            }catch (e: Exception) {
+                //if anything goes wrong causing exception, get and show exception message
+                Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
+            }
         }
 
         /**
@@ -178,7 +190,7 @@ class MainActivity : AppCompatActivity() {
          *
          */
         listView.setOnItemLongClickListener { parent, view, position, id ->
-            Toast.makeText(this, "Position Clicked:" + " " + position, Toast.LENGTH_SHORT).show()
+
             if (listView.isItemChecked(position)) {
                 listView.setItemChecked(position, false)
                 shareButton.visibility = View.INVISIBLE
@@ -196,10 +208,24 @@ class MainActivity : AppCompatActivity() {
          * item gets deleted on button click
          */
         deleteButton.setOnClickListener {
-            val itemId = listView.checkedItemPosition
-            println("Test")
+            val position = listView.checkedItemPosition
+            try{
+            onDelete(position)}
+            catch (e: Exception) {
+                //if anything goes wrong causing exception, get and show exception message
+                Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
+            }
         }
 
+        shareButton.setOnClickListener {
+            val position=listView.checkedItemPosition
+            try {
+                onShareButton(position)
+            }catch (e: Exception) {
+                //if anything goes wrong causing exception, get and show exception message
+                Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
+            }
+        }
 
         /**
          * toggle between sorting for favorites/date
@@ -262,6 +288,37 @@ class MainActivity : AppCompatActivity() {
 
 
     }
+    /**
+     * calls the [CreatePDF] activity at the given position
+     * @param position the position of the Item in the ListView
+     */
+    private fun onShareButton(position: Int){
+        val intent = Intent(this, CreatePDF::class.java)
+        val radData = adapter.getItem(position)
+        intent.putExtraJson("radData", radData)
+
+        startActivityForResult(intent, CREATE_PDF)
+    }
+
+    /**
+     * deletes the Item at the given position
+     * @param position the position of the Item in the ListView
+     */
+    private fun onDelete(position: Int){
+        val currentItem = adapter.getItem(position!!)
+        for (item in currentItem.image.imageFiles!!) {
+            val path = Paths.get(item)
+            if (path.delete()) {
+                println("Deleted ${path.fileName}")
+            } else {
+                println("Could not delete ${path.fileName}")
+            }
+        }
+        adapter.remove(currentItem)
+        //highlightList.remove(highlightList.size-1)
+        saveToFile()
+        onRestart()
+    }
 
     /**
      * On new Item button click calls the [ExaminationEditingActivity] with the purpose new
@@ -269,7 +326,6 @@ class MainActivity : AppCompatActivity() {
      * @param view the button which it is connected to
      */
     fun onNewItemButton(view: View) {
-        Toast.makeText(this@MainActivity, "You clicked me.", Toast.LENGTH_SHORT).show()
         val intent = Intent(this, ExaminationEditingActivity::class.java)
         intent.putExtra("purpose", "new")
         startActivityForResult(intent, NEW_ITEM)

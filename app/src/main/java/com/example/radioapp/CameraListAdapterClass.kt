@@ -3,15 +3,11 @@ package com.example.radioapp
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.BitmapFactory
-import android.media.Image
-import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.annotation.RequiresApi
 import java.lang.Exception
-import java.time.format.DateTimeFormatter
 
 
 /**
@@ -73,7 +69,7 @@ class CameraListAdapterClass(
 
 
         // Get thumbnail element
-        val thumbnailImageView = rowView.findViewById(R.id.camera_list_image) as ImageView
+        val thumbnailImageView = rowView.findViewById(R.id.cl_imageView) as ImageView
 
         //Get checkbox element
         val delete = rowView.findViewById(R.id.delete_list_image_button) as ImageButton

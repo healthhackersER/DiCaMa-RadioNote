@@ -3,6 +3,7 @@ package com.example.radioapp
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Canvas
 import android.graphics.Bitmap
 import android.graphics.Bitmap.createScaledBitmap
 import android.graphics.BitmapFactory
@@ -23,9 +24,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.android.synthetic.main.activity_camera.*
 import java.nio.file.Paths
 
-
-import java.util.logging.Handler
-
 /**
  * Camera editing activity shows a list of taken images to an examination Item in a horizontal view
  * and the selected image in an zoomable, panable big view. Markers can be set on the image and
@@ -42,6 +40,7 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
     private lateinit var currentPhotoDescription: MutableList<String>
     private lateinit var currentMarker: MutableList<MutableList<FloatArray>>
     private lateinit var currentSelection: MutableList<Boolean>
+    private lateinit var currentImageMarked: MutableList<String>
 
     //holds the state of the marker button
     private var markerToggle = false
@@ -79,13 +78,9 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
                     currentMarker[currentPosition][lastIndex][0] = x
                     currentMarker[currentPosition][lastIndex][1] = y
                     val pointArray= listToArray(currentMarker[currentPosition])
-
-//                    var pointList = mutableListOf<PointF>()
-//                    for (i in currentMarker[currentPosition].indices){
-//                        pointList.add(PointF(currentMarker[currentPosition][i][0],currentMarker[currentPosition][i][1]))
-//                    }
-//                    val pointArray=pointList.toTypedArray()
                     big_imageView.setPins(pointArray)
+                    saveMarkedImage()
+
                 }
 
 
@@ -112,6 +107,7 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
         currentPhotoImages = imageData!!.imageFiles
         currentPhotoDescription = imageData.imageDescription
         currentMarker = imageData.marker
+        currentImageMarked=imageData.imageMarked
         currentSelection = MutableList(currentPhotoImages.size) { false }
 
         //setting up values for the different buttons
@@ -162,7 +158,7 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
                     ExaminationEditingActivity.REQUEST_TAKE_PHOTO
                 )
             } else {
-                Toast.makeText(this, "Unable to open camera", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, R.string.unable_to_open_camera, Toast.LENGTH_SHORT).show()
             }
             currentImagePath = photoFile.path.toString()
 
@@ -191,6 +187,31 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
             }
         }
     }
+    /**
+     * saves the current image View with the markers to bitmap file
+     *
+     */
+    private fun saveMarkedImage(){
+        val filename= createImageFile(this)
+
+        val stream=filename.outputStream()
+        getBitmapFromView(big_imageView)?.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        stream.close()
+
+        if (currentPosition!=-1){
+            if(currentImageMarked[currentPosition].isEmpty()) {
+                currentImageMarked[currentPosition] = filename.absolutePath
+            }else{
+                val pathMarked = Paths.get(currentImageMarked[currentPosition])
+                if (pathMarked.delete()) {
+                    println("Deleted ${pathMarked.fileName}")
+                } else {
+                    println("Could not delete ${pathMarked.fileName}")
+                }
+                currentImageMarked[currentPosition] = filename.absolutePath
+            }
+        }
+    }
 
     /**
      * removes the last Marker of the currently selected Item
@@ -202,6 +223,7 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
                 currentMarker[currentPosition].removeLast()
                 val pointArray=listToArray(currentMarker[currentPosition])
                 big_imageView.setPins(pointArray)
+                saveMarkedImage()
             }
 
         }
@@ -215,40 +237,11 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
      private fun onOkButton(){
         val okIntent = Intent(this, ExaminationEditingActivity::class.java)
         val imageData =
-            ImageDataClass(currentPhotoImages, currentPhotoDescription, currentMarker)
+            ImageDataClass(currentPhotoImages, currentPhotoDescription, currentMarker, currentImageMarked)
         okIntent.putExtraJson("imageData", imageData)
         setResult(Activity.RESULT_OK, okIntent)
         finish()
     }
-
-    /**
-     * deletes the image files and list Item Object that is currently selected and moves the
-     * selection to previous item in the list if possible else to the next or to -1
-     *
-     */
-     private fun onDeleteImage(){
-        if (currentPosition != -1) {
-            val path = Paths.get(currentPhotoImages[currentPosition])
-            if (path.delete()) {
-                println("Deleted ${path.fileName}")
-            } else {
-                println("Could not delete ${path.fileName}")
-            }
-            currentPhotoImages.removeAt(currentPosition)
-            currentPhotoDescription.removeAt(currentPosition)
-            currentMarker.removeAt(currentPosition)
-            currentSelection.removeAt(currentPosition)
-            if (currentPosition - 1 != -1 && currentPosition != 0) {
-                simulateClick(currentPosition - 1)
-            } else if (currentPosition == 0 && currentPhotoImages.size >= 1) {
-                simulateClick(0)
-            } else if (currentPosition == 0 && currentPhotoImages.size == 0) {
-                currentPosition = -1
-            }
-            adapter.notifyDataSetChanged()
-        }
-    }
-
 
     /**
      * selects the Item at the clicked position on the view
@@ -270,6 +263,7 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
         edit_text_Bildbeschreibung.text = currentPhotoDescription[position]
         val pointArray= listToArray(currentMarker[position])
         big_imageView.setPins(pointArray)
+        saveMarkedImage()
 
     }
 
@@ -282,7 +276,8 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
         if (position==currentPosition) {
             if (currentPosition != -1) {
                 val path = Paths.get(currentPhotoImages[currentPosition])
-                if (path.delete()) {
+                val pathMarked = Paths.get(currentImageMarked[currentPosition])
+                if (path.delete() && pathMarked.delete()) {
                     println("Deleted ${path.fileName}")
                 } else {
                     println("Could not delete ${path.fileName}")
@@ -302,7 +297,8 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
             }
         }else{
             val path = Paths.get(currentPhotoImages[position])
-            if (path.delete()) {
+            val pathMarked = Paths.get(currentImageMarked[currentPosition])
+            if (path.delete() && pathMarked.delete()) {
                 println("Deleted ${path.fileName}")
             } else {
                 println("Could not delete ${path.fileName}")
@@ -342,9 +338,13 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
             currentSelection.add(true)
             edit_text_Bildbeschreibung.text = ""
             currentPosition = currentPhotoDescription.size - 1
+            currentImageMarked.add("")
+            saveMarkedImage()
             adapter.notifyDataSetChanged()
             //scrolling to position
             recyclerView.scrollToPosition(currentPosition)
+
+
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
@@ -375,11 +375,12 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
             currentSelection[currentPosition] = true
             val pointArray=listToArray(currentMarker[position])
             big_imageView.setPins(pointArray)
-
             edit_text_Bildbeschreibung.text = currentPhotoDescription[position]
             adapter.notifyDataSetChanged()
+            saveMarkedImage()
         } catch (e: Exception) {
-            println("Exception loading on Create CameraActivity")
+            //if anything goes wrong causing exception, get and show exception message
+            Toast.makeText(this@CameraEditingActivity, e.message, Toast.LENGTH_LONG).show()
         }
     }
     /**
@@ -399,8 +400,8 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
             AppCompatActivity.INPUT_METHOD_SERVICE
         ) as InputMethodManager
 
-        val text = bottomSheetDialog.findViewById<TextView>(R.id.editTextTextPersonName)
-        val next = bottomSheetDialog.findViewById<ImageButton>(R.id.imageButton)
+        val text = bottomSheetDialog.findViewById<TextView>(R.id.bs_edit_editText)
+        val next = bottomSheetDialog.findViewById<ImageButton>(R.id.bs_done_button)
         val hint = bottomSheetDialog.findViewById<TextView>(R.id.textHint)
         //showing the hin of the TextView
         hint!!.text = target.hint
@@ -437,7 +438,20 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
 
 
     }
-
+    /**
+     * method to get a bitmap from the view
+     *
+     * @param view from which to get the bitmap
+     * @return the bitmap from the view
+     *
+     */
+    open fun getBitmapFromView(view: View): Bitmap? {
+        var bitmap =
+            Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+        var canvas = Canvas(bitmap)
+        view.draw(canvas)
+        return bitmap
+    }
 
 
 }

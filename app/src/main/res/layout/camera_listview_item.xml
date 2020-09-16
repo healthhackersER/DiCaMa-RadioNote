@@ -10,16 +10,18 @@ android:background="@drawable/background_selector"
 android:padding="8dp">
 
 <ImageView
-    android:id="@+id/camera_list_image"
+    android:id="@+id/cl_imageView"
     android:layout_width="70dp"
-    android:layout_height="70dp" />
+    android:layout_height="70dp"
+    android:contentDescription="@string/image" />
 
     <ImageButton
         android:id="@+id/delete_list_image_button"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.5"
-        app:srcCompat="@android:drawable/ic_delete" />
+        app:srcCompat="@android:drawable/ic_delete"
+        android:contentDescription="@string/delete" />
 
 
 </LinearLayout>

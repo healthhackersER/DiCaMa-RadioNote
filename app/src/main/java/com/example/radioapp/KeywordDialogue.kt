@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.activity_keyword_dialogue.*
  *
  * @constructor Create empty Keyword_dialogue
  */
-class keyword_dialogue : AppCompatActivity() {
+class KeywordDialogue : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_keyword_dialogue)

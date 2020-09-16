@@ -29,7 +29,7 @@
         android:id="@+id/text_Bildbeschreibung"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Bildbeschreibung"
+        android:text="@string/image_description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -51,7 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:text="OK"
+        android:text="@string/ok"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -76,7 +76,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginTop="8dp"
                 android:clickable="true"
-                android:hint="Edit Bildbeschreibung"
+                android:hint="@string/edit_bildbeschreibung"
                 android:textColor="#000000"
                 android:textSize="16sp" />
         </LinearLayout>
@@ -90,7 +90,8 @@
         app:layout_constraintBottom_toTopOf="@+id/ok_camera_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ca_scroll_view"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        app:srcCompat="@android:drawable/ic_input_add"
+        android:contentDescription="@string/add_image" />
 
     <ImageButton
         android:id="@+id/ca_delete_marker"
@@ -105,7 +106,7 @@
         android:id="@+id/ca_toggle_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Marker"
+        android:text="@string/marker"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout3"
         app:layout_constraintEnd_toStartOf="@+id/ca_delete_marker"
          />
@@ -115,7 +116,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Markierungen setzen"
+        android:text="@string/set_marker"
         app:layout_constraintEnd_toStartOf="@+id/ca_toggle_button"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
 
