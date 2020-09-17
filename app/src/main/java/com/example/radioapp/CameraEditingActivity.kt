@@ -127,7 +127,7 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
         recyclerView.adapter = adapter
 
         //setting up the initial image in the big image viewer
-        val defaultImage = BitmapFactory.decodeResource(this.resources, R.drawable.xray_flower)
+        val defaultImage = BitmapFactory.decodeResource(this.resources, R.drawable.camera_image)
         big_imageView.setImage(ImageSource.bitmap(defaultImage))
 
 

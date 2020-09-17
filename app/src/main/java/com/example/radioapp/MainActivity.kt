@@ -18,6 +18,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import kotlinx.android.synthetic.main.activity_main.*
 import java.nio.file.Paths
 
 //help function
@@ -182,6 +183,8 @@ class MainActivity : AppCompatActivity() {
                 //if anything goes wrong causing exception, get and show exception message
                 Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
             }
+            //undo autocheck of item
+            listView.setItemChecked(position,false)
         }
 
         /**
@@ -352,6 +355,8 @@ class MainActivity : AppCompatActivity() {
                 adapter.add(dataObject)
                 adapter.sort(compareByDescending({ it.date }))
                 saveToFile()
+                share_Button.visibility = View.INVISIBLE
+                delete_Button.visibility = View.INVISIBLE
                 onRestart()
 
             }
@@ -365,13 +370,18 @@ class MainActivity : AppCompatActivity() {
                 //restating the main activity
                 adapter.sort(compareByDescending({ it.date }))
                 saveToFile()
+                share_Button.visibility = View.INVISIBLE
+                delete_Button.visibility = View.INVISIBLE
                 onRestart()
             }
         }
 
         //return from the cancel button of the editing Activity
         if (resultCode == Activity.RESULT_CANCELED) {
+            share_Button.visibility = View.INVISIBLE
+            delete_Button.visibility = View.INVISIBLE
             onRestart()
+
         }
 
         //return from the delete button of the editing Activity
@@ -389,6 +399,8 @@ class MainActivity : AppCompatActivity() {
             adapter.remove(currentItem)
             //highlightList.remove(highlightList.size-1)
             saveToFile()
+            share_Button.visibility = View.INVISIBLE
+            delete_Button.visibility = View.INVISIBLE
             onRestart()
         }
 

@@ -25,7 +25,7 @@
 
         <TextView
             android:id="@+id/pdf_recycler_text"
-            android:layout_width="140dp"
+            android:layout_width="62dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="@string/image_description" />

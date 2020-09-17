@@ -188,9 +188,9 @@ class ExaminationEditingActivity : AppCompatActivity() {
             val dateFormatted = objectClass!!.date?.format(formatter)
             edit_Date.setText(dateFormatted.toString())
             favorites = objectClass.favorites
-            ee_storage_editText.setText(objectClass!!.storage)
-            ee_evaluation_textEdit.setText(objectClass!!.evaluation)
-            ee_note_textEdit.setText(objectClass!!.note)
+            ee_storage_editText.text = objectClass!!.storage
+            ee_evaluation_textEdit.text = objectClass!!.evaluation
+            ee_note_textEdit.text = objectClass!!.note
             currentPhotoPath = objectClass.image.imageFiles!!
             currentPhotoDescription = objectClass.image.imageDescription!!
             currentMarker = objectClass.image.marker!!
@@ -201,9 +201,10 @@ class ExaminationEditingActivity : AppCompatActivity() {
             if (objectClass.image.imageFiles.size >= 1) {
                 val currentImage = BitmapFactory.decodeFile(objectClass.image.imageFiles[0])
                 ee_imageView.setImageBitmap(currentImage)
+                ee_image_text.text=currentPhotoDescription[0]
             } else if (objectClass.image.imageFiles.size == 0) {
                 val defaultImage =
-                    BitmapFactory.decodeResource(this.resources, R.drawable.xray_flower)
+                    BitmapFactory.decodeResource(this.resources, R.drawable.camera_image)
                 ee_imageView.setImageBitmap(defaultImage)
             }
 
@@ -219,7 +220,7 @@ class ExaminationEditingActivity : AppCompatActivity() {
 
         //if the activity was started by the new exmamination button set up default image
         if (purpose == "new") {
-            val defaultImage = BitmapFactory.decodeResource(this.resources, R.drawable.xray_flower)
+            val defaultImage = BitmapFactory.decodeResource(this.resources, R.drawable.camera_image)
             ee_imageView.setImageBitmap(defaultImage)
         }
 
@@ -285,6 +286,23 @@ class ExaminationEditingActivity : AppCompatActivity() {
         }
 
         /**
+         * when the type info button is clicked
+         */
+        ee_info_button.setOnClickListener {
+            val info=resources.getStringArray(R.array.type_info_array)
+            try{
+                val message = info[spinner_selection!!]
+                val intent =
+                    Intent(this@ExaminationEditingActivity, KeywordDialogue::class.java)
+                intent.putExtra("message", message)
+                startActivityForResult(intent, REQUEST_KEYWORD_DIALOGUE)
+            }catch (e: Exception) {
+                //if anything goes wrong causing exception, get and show exception message
+                Toast.makeText(this@ExaminationEditingActivity, e.message, Toast.LENGTH_LONG).show()
+            }
+        }
+
+        /**
          * when the cancel button is clicked
          */
         cancelButton.setOnClickListener {
@@ -312,6 +330,16 @@ class ExaminationEditingActivity : AppCompatActivity() {
                 finish()
             }
         }
+
+        /**
+         * when the cameraButton is clicked on the CameraEditingActivity gets started
+         */
+        ee_camera_button.setOnClickListener {
+            val intent = Intent(this, CameraEditingActivity::class.java)
+            val imageData = ImageDataClass(currentPhotoPath, currentPhotoDescription, currentMarker,currentImageMarked)
+            intent.putExtraJson("imageData", imageData)
+
+            startActivityForResult(intent, REQUEST_IMAGE_EDITOR) }
 
         /**
          * when the imageViewer is clicked on the CameraEditingActivity gets started
@@ -437,7 +465,7 @@ class ExaminationEditingActivity : AppCompatActivity() {
         val sentenceString = target.text.toString()
         val spanString = SpannableString(sentenceString)
         //getting each word from the textView
-        var sentenceWords = sentenceString.replace('\n', ' ').split(" ").toMutableList()
+        var sentenceWords = sentenceString.replace('\n', ' ').split(" ",",",".").toMutableList()
         //converting to lower case in order to avoid case sensitivity
         for (i in sentenceWords.indices) {
             sentenceWords[i] = sentenceWords[i].toLowerCase()
@@ -511,6 +539,7 @@ class ExaminationEditingActivity : AppCompatActivity() {
                 try {
                     val takenImage = BitmapFactory.decodeFile(currentPhotoPath[0])
                     ee_imageView.setImageBitmap(takenImage)
+                    ee_image_text.text=currentPhotoDescription[0]
                 } catch (e: Exception) {
                     //if anything goes wrong causing exception, get and show exception message
                     Toast.makeText(this@ExaminationEditingActivity, e.message, Toast.LENGTH_LONG).show()

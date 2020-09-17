@@ -6,9 +6,14 @@
         <item>partielle|Das Tumorvolumen wurde um mehr als 50 % vermindert unter der derzeitigen Therapie im Vergleich zur Untersuchung vor der derzeitigen Therapie</item>
         <item>stabile|Eine stabile Erkrankung bedeutet, dass sich das Volumen des Tumors um weniger als 25 % geändert hat</item>
         <item>progression|Eine in progression befindliche Erkrankung bedeutet ein Wachstum des Tumors um mindestens 25 %</item>
+        <item>progressive|Eine in progression befindliche Erkrankung bedeutet ein Wachstum des Tumors um mindestens 25 %</item>
         <item>infiltrate|Im Kontext einer Untersuchung der Lunge bezeichnen Infiltrate meistens eine entzündliche Veränderung, im Allgemeinen bezeichnet der Begriff das Eindringen einer Substanz in biologisches Gewebe</item>
+        <item>ergüsse|Bezeichnen Ergüsse meist Pleuraergüsse. Dies ist eine Ansammlung von Flüssigkeit zwischen der Lunge und der Thoraxwand. Dies kann eine Vielzahl von Ursachen haben. Ergüsse können die Atmung Einschränken wenn sie zu groß werden. </item>
+        <item>pneumothorax|Ein Pneumothorax bezeichnet eine Luftansammlung zwischen der Lunge und der Thoraxwand. Dies kann dazu führen, dass die Lunge kollabiert. Häufig treten Pneumothoraxe im Rahmen einer Lungenpunktion auf, können aber auch spontan entstehen. Kleinere Pneumothoraxe resorbieren sich meist von selbst und sind nicht akut behandlungsbedürftig. Akut gefährlich und behandlungsbedürftig ist der sogenannte Spannungspneumothorax, wobei Luft durch einen Ventil Mechanismus in den Pleuraspalt gelangt und nicht mehr entweichen kann. </item>
+        <item>empyem|Ein Empyem bezeichnet eine Ansammlung von Eiter in einer vorgeformten Körperhöhle wie zum Beispiel dem Pleuraspalt. Empyeme deuten auf einen starken entzündlichen Prozess hin.</item>
+        <item>abszess|Ein Abszess ist eine Ansammlung von Eiter in einer nicht vorgeformten Höhle. Abszesse deuten auf einen starken entzündlichen Prozess hin. </item>
+        <item>raumforderung|Eine Raumforderung bezeichnet zunächst eine unphysiologische Volumenname im Körper. Diese können unterschiedliche Ursachen habe. Die Ursachen können gutartiger Natur sein. Im Rahmen einer zugrundeliegenden Krebserkrankung können Raumforderungen aber auch bösartiger Natur sein und zum Beispiel Metastasen darstellen. Je nach Struktur und Lage der Raumforderungen müssen die Raumforderungen gegebenenfalls weiter untersucht werden oder im Verlauf kontrolliert werden. </item>
+        <item>emphysem|Als Emphysem bezeichnet man das unphysiologische erhöhte Vorkommen von Luft oder Gas im Gewebe. Emphyseme in der Lunge treten zum Beispiel im Rahmen der COPD auf. Emphyseme in anderen Körpergeweben können nach einer medizinischen Intervention auftreten. Ohne Eingriff können sie aber auch im Rahmen entzündlicher Prozesse auftreten. </item>
 
     </string-array>
-
-
 </resources>
