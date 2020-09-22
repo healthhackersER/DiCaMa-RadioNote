@@ -12,10 +12,12 @@ import android.content.res.Resources
 import android.os.Build
 import android.view.Menu
 import android.view.MenuItem
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_main.*
@@ -140,7 +142,7 @@ class MainActivity : AppCompatActivity() {
         //making the share and delete button invisible by default
         shareButton.visibility = View.INVISIBLE
         deleteButton.visibility = View.INVISIBLE
-
+        ma_search_linearLayout.visibility=View.INVISIBLE
         //requesting the permission at runtime
         if (hasNoPermissions()) {
             requestPermission()
@@ -238,9 +240,25 @@ class MainActivity : AppCompatActivity() {
             if (toggle == false) {
                 adapter.sort(compareByDescending({ it.favorites }))
                 toggle = true
+                listView.smoothScrollToPosition(0)
             } else {
                 adapter.sort(compareByDescending({ it.date }))
                 toggle = false
+            }
+        }
+
+        ma_search_text.setOnClickListener{
+            //TODO search for string
+        }
+
+        var toggleSearch= false
+        searchButton.setOnClickListener {
+            if(toggleSearch==false) {
+                ma_search_linearLayout.visibility = View.VISIBLE
+                toggleSearch=true
+            }else if (toggleSearch==true){
+                ma_search_linearLayout.visibility=View.INVISIBLE
+                toggleSearch=false
             }
         }
 
@@ -436,10 +454,17 @@ class MainActivity : AppCompatActivity() {
             val currentData= listItems[i].type
             if (currentRecentItems[currentData!!]==-1){
                 currentRecentItems[currentData!!]=i
-            }else if(currentRecentItems[i]!=-1){
-                if( listItems[currentRecentItems[currentData!!]!!].date?.compareTo(listItems[i].date)!! < 0){
-                    currentRecentItems[currentData!!]=i
+            }else if(currentRecentItems[currentData!!]!=-1){
+                try {
+                    if (listItems[currentRecentItems[currentData!!]!!].date?.compareTo(listItems[i].date)!! < 0) {
+                        currentRecentItems[currentData!!] = i
+                    }
                 }
+                    catch (e: Exception) {
+                        //if anything goes wrong causing exception, get and show exception message
+                        Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
+                    }
+
 
 
             }
@@ -468,6 +493,70 @@ class MainActivity : AppCompatActivity() {
             listItems = mutableListOf<RadFileDataClass>()
         }
         return listItems
+    }
+
+    private fun searchString(word:String) :MutableList<Int>{
+        var dropdownStringArray = resources.getStringArray(R.array.type_array)
+        val found = mutableListOf<Int>()
+        for (i in listItems.indices){
+            val description =listItems[i].examination
+            val type = listItems[i].type
+            val typeString = dropdownStringArray[type!!]
+            if (description.contains(word) || typeString.contains(word)){
+                found.add(i)
+            }
+
+        }
+        return found
+
+    }
+
+    private fun editSearchDialog(target: TextView, flag: Int) {
+
+        val bottomSheetDialog = BottomSheetDialog(this)
+        bottomSheetDialog.setContentView(R.layout.bottom_sheet_dialog)
+        bottomSheetDialog.setCanceledOnTouchOutside(true)
+
+        val inputMethodManager: InputMethodManager = this.getSystemService(
+            AppCompatActivity.INPUT_METHOD_SERVICE
+        ) as InputMethodManager
+
+        val text = bottomSheetDialog.findViewById<TextView>(R.id.bs_edit_editText)
+        val next = bottomSheetDialog.findViewById<ImageButton>(R.id.bs_done_button)
+        val hint = bottomSheetDialog.findViewById<TextView>(R.id.textHint)
+        //showing the hin of the TextView
+        hint!!.text = target.hint
+
+        if (text != null) {
+            text.text = target.text.toString()
+            text.isFocusableInTouchMode = true
+            text.requestFocus()
+            text.requestFocusFromTouch()
+
+            //force to show the keyboard
+            inputMethodManager.toggleSoftInput(
+                InputMethodManager.SHOW_FORCED,
+                InputMethodManager.HIDE_IMPLICIT_ONLY
+            )
+        }
+        bottomSheetDialog.show()
+
+        //closing the sheetDialog and setting th TextView Text to edited Text
+        if (next != null) {
+
+            next.setOnClickListener {
+
+
+                target.text = text!!.text.toString()
+                //TODO search Funktion
+                //force hide the keyboard
+                inputMethodManager.hideSoftInputFromWindow(text.windowToken, 0)
+
+                bottomSheetDialog.dismiss()
+            }
+        }
+
+
     }
 
 }

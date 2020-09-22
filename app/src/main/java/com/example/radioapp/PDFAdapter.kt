@@ -20,7 +20,6 @@ import java.io.FileDescriptor
 /**
  * Recycler adapter class implements an adapter for a recyclerView displayed
  * in the [CreatePDF] activity
- *
  * @property radData the data of the examination which is selected
  * @property includeImageList list of Booleans which image items are checked
  * @propert includeMarkerList list of Booleans which marker items are checked
