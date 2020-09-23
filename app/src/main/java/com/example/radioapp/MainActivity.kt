@@ -2,26 +2,34 @@ package com.example.radioapp
 
 import android.Manifest
 import android.app.Activity
-import android.content.Intent
-import android.os.Bundle
-import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.graphics.Typeface
 import android.os.Build
+import android.os.Bundle
+import android.text.style.CharacterStyle
+import android.text.style.StyleSpan
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.ImageButton
+import android.widget.ListView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.radioapp.ExaminationEditingActivity.Companion.EDIT_TEXT
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_main.*
 import java.nio.file.Paths
+import java.time.format.DateTimeFormatter
 
 //help function
 
@@ -55,7 +63,10 @@ class MainActivity : AppCompatActivity() {
         const val CREATE_PDF =8
         const val VIEW_PDF=9
         const val STORAGE_CODE=10
+
     }
+    private var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+
 
     //Checking for the permissions at runtime methods
     val permissions = arrayOf(
@@ -94,6 +105,7 @@ class MainActivity : AppCompatActivity() {
     //the variable for the adapter
     private lateinit var adapter: MainListAdapterClass
     private lateinit var listItems: MutableList<RadFileDataClass>
+    private lateinit var foundHighlight: MutableList<Array<Array<Int>>>
 
 
     /**
@@ -102,7 +114,7 @@ class MainActivity : AppCompatActivity() {
      * @return Boolean
      */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main_menue,menu);
+        menuInflater.inflate(R.menu.main_menue, menu);
         return true
     }
 
@@ -139,6 +151,7 @@ class MainActivity : AppCompatActivity() {
 
         //toggle value for the favorite Button to toggle bettwen date and favorite
         var toggle = false
+
         //making the share and delete button invisible by default
         shareButton.visibility = View.INVISIBLE
         deleteButton.visibility = View.INVISIBLE
@@ -155,7 +168,7 @@ class MainActivity : AppCompatActivity() {
             //if anything goes wrong causing exception, get and show exception message
             Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
         }
-
+        foundHighlight = MutableList(listItems.size) { arrayOf(arrayOf(-1,-1), arrayOf(-1,-1), arrayOf(-1,-1)) }
         //initializing the listView adapter
         adapter = MainListAdapterClass(this, R.layout.listview_item, listItems)
 
@@ -186,7 +199,7 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
             }
             //undo autocheck of item
-            listView.setItemChecked(position,false)
+            listView.setItemChecked(position, false)
         }
 
         /**
@@ -248,7 +261,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         ma_search_text.setOnClickListener{
-            //TODO search for string
+            editSearchDialog(ma_search_text, EDIT_TEXT)
+
+        }
+        ma_gosearch_button.setOnClickListener{
+            if(ma_search_text.text==""){
+                Toast.makeText(this@MainActivity, "please enter a search text", Toast.LENGTH_LONG).show()
+
+            }else{
+                foundHighlight=searchString(ma_search_text.text.toString())
+
+            }
+            adapter.notifyDataSetChanged()
         }
 
         var toggleSearch= false
@@ -257,6 +281,8 @@ class MainActivity : AppCompatActivity() {
                 ma_search_linearLayout.visibility = View.VISIBLE
                 toggleSearch=true
             }else if (toggleSearch==true){
+                foundHighlight= MutableList(listItems.size) { arrayOf(arrayOf(-1,-1), arrayOf(-1,-1), arrayOf(-1,-1)) }
+                adapter.notifyDataSetChanged()
                 ma_search_linearLayout.visibility=View.INVISIBLE
                 toggleSearch=false
             }
@@ -341,6 +367,10 @@ class MainActivity : AppCompatActivity() {
         onRestart()
     }
 
+    fun getHighlight():MutableList<Array<Array<Int>>>{
+        return foundHighlight
+    }
+
     /**
      * On new Item button click calls the [ExaminationEditingActivity] with the purpose new
      *
@@ -371,6 +401,7 @@ class MainActivity : AppCompatActivity() {
 
                 val dataObject = data?.getJsonExtra("data", RadFileDataClass::class.java)
                 adapter.add(dataObject)
+                foundHighlight.add(arrayOf(arrayOf(-1,-1), arrayOf(-1,-1), arrayOf(-1,-1)))
                 adapter.sort(compareByDescending({ it.date }))
                 saveToFile()
                 share_Button.visibility = View.INVISIBLE
@@ -384,6 +415,7 @@ class MainActivity : AppCompatActivity() {
                 val dataObject = data?.getJsonExtra("data", RadFileDataClass::class.java)
                 val currentItem = adapter.getItem(currentPosition!!)
                 adapter.remove(currentItem)
+
                 adapter.insert(dataObject, currentPosition!!)
                 //restating the main activity
                 adapter.sort(compareByDescending({ it.date }))
@@ -415,7 +447,8 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             adapter.remove(currentItem)
-            //highlightList.remove(highlightList.size-1)
+            foundHighlight.removeAt(currentPosition)
+
             saveToFile()
             share_Button.visibility = View.INVISIBLE
             delete_Button.visibility = View.INVISIBLE
@@ -449,7 +482,7 @@ class MainActivity : AppCompatActivity() {
         val res: Resources = resources
         val dropdownArray=res.getStringArray(R.array.type_array)
         var currentRecentItems= arrayOfNulls<Int>(dropdownArray.size)
-        currentRecentItems.fill(-1,0,currentRecentItems.size)
+        currentRecentItems.fill(-1, 0, currentRecentItems.size)
         for (i in listItems.indices){
             val currentData= listItems[i].type
             if (currentRecentItems[currentData!!]==-1){
@@ -495,21 +528,29 @@ class MainActivity : AppCompatActivity() {
         return listItems
     }
 
-    private fun searchString(word:String) :MutableList<Int>{
+    private fun searchString(word: String): MutableList<Array<Array<Int>>>{
         var dropdownStringArray = resources.getStringArray(R.array.type_array)
-        val found = mutableListOf<Int>()
-        for (i in listItems.indices){
-            val description =listItems[i].examination
+        //first index s description, second index is type, and third index is date
+        val found = MutableList(listItems.size) { arrayOf(arrayOf(-1,-1),arrayOf(-1,-1), arrayOf(-1,-1))}
+
+        for (i in listItems.indices) {
+            val description = listItems[i].examination
             val type = listItems[i].type
             val typeString = dropdownStringArray[type!!]
-            if (description.contains(word) || typeString.contains(word)){
-                found.add(i)
-            }
+            val date = listItems[i].date?.format(formatter).toString()
+            found[i][0][0] = description.indexOf(word, 0, true)
+            found[i][0][1] = found[i][0][0]+word.length
+            found[i][1][0] = typeString.indexOf(word, 0, true)
+            found[i][1][1] = found[i][1][0]+word.length
+            found[i][2][0] = date.indexOf(word, 0, true)
+            found[i][2][1] = found[i][2][0]+word.length
+
 
         }
         return found
 
     }
+
 
     private fun editSearchDialog(target: TextView, flag: Int) {
 
@@ -541,16 +582,17 @@ class MainActivity : AppCompatActivity() {
         }
         bottomSheetDialog.show()
 
-        //closing the sheetDialog and setting th TextView Text to edited Text
+        //closing the sheetDialog and setting th TextView Text to edited Text and starting Search
         if (next != null) {
 
             next.setOnClickListener {
 
 
                 target.text = text!!.text.toString()
-                //TODO search Funktion
+
                 //force hide the keyboard
                 inputMethodManager.hideSoftInputFromWindow(text.windowToken, 0)
+
 
                 bottomSheetDialog.dismiss()
             }

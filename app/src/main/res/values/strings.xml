@@ -35,4 +35,5 @@
     <string name="include_markers">Markierungen einfügen</string>
     <string name="include_description">Beschreibung einfügen</string>
     <string name="unable_to_open_camera">Kamera kann nicht geöffnet werden</string>
+    <string name="search_term">Such Text</string>
 </resources>

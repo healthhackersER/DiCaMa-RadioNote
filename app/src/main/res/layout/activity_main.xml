@@ -32,22 +32,16 @@
             android:id="@+id/ma_search_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="TextView" />
+            android:hint="@string/search_term"
+            android:layout_weight="1" />
 
         <ImageButton
-            android:id="@+id/imageButton"
-            android:layout_width="12dp"
+            android:id="@+id/ma_gosearch_button"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.2"
-            app:srcCompat="@android:drawable/arrow_down_float" />
+            android:layout_weight="0.5"
+            app:srcCompat="@android:drawable/ic_menu_send" />
 
-        <ImageButton
-            android:id="@+id/imageButton2"
-            android:layout_width="12dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.2"
-            app:srcCompat="@android:drawable/arrow_up_float" />
     </LinearLayout>
 
     <ListView
