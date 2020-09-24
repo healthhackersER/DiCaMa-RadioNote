@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: MainListAdapterClass
     private lateinit var listItems: MutableList<RadFileDataClass>
     private lateinit var foundHighlight: MutableList<Array<Array<Int>>>
-
+    var toggleSearch= false
 
     /**
      * method to create the options menue in the toolbar
@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity() {
      * @return Boolean
      */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.main_menue, menu);
+        menuInflater.inflate(R.menu.main_menue, menu)
         return true
     }
 
@@ -128,6 +128,19 @@ class MainActivity : AppCompatActivity() {
         if (id == R.id.settings_action){
             Toast.makeText(this, "item Add Clicked", Toast.LENGTH_SHORT).show()
             return true
+        }
+        if (id==R.id.mi_search){
+            if(toggleSearch==false) {
+                ma_search_linearLayout.visibility = View.VISIBLE
+                toggleSearch=true
+            }else if (toggleSearch==true){
+                foundHighlight= MutableList(listItems.size) { arrayOf(arrayOf(-1,-1), arrayOf(-1,-1), arrayOf(-1,-1)) }
+                adapter.notifyDataSetChanged()
+                ma_search_text.text=""
+                ma_search_linearLayout.visibility=View.GONE
+                toggleSearch=false
+            }
+
         }
 
         return super.onOptionsItemSelected(item)
@@ -144,7 +157,6 @@ class MainActivity : AppCompatActivity() {
 
         //values of different Buttons
         val shareButton = findViewById<ImageButton>(R.id.share_Button)
-        val searchButton = findViewById<ImageButton>(R.id.search_Button)
         val deleteButton = findViewById<ImageButton>(R.id.delete_Button)
         val favoriteButton = findViewById<ImageButton>(R.id.favorite_Button)
         val sortButton = findViewById<ImageButton>(R.id.sort_Button)
@@ -153,9 +165,11 @@ class MainActivity : AppCompatActivity() {
         var toggle = false
 
         //making the share and delete button invisible by default
-        shareButton.visibility = View.INVISIBLE
-        deleteButton.visibility = View.INVISIBLE
-        ma_search_linearLayout.visibility=View.INVISIBLE
+        shareButton.visibility = View.GONE
+        deleteButton.visibility = View.GONE
+        sortButton.visibility=View.VISIBLE
+        favoriteButton.visibility=View.VISIBLE
+        ma_search_linearLayout.visibility=View.GONE
         //requesting the permission at runtime
         if (hasNoPermissions()) {
             requestPermission()
@@ -179,7 +193,16 @@ class MainActivity : AppCompatActivity() {
         listView.choiceMode = ListView.CHOICE_MODE_SINGLE
 
         /**
-         * of a listView Item gets clicked on the [ExaminationEditingActivity] gets called on with
+         * when the floating action button is clicked [ExaminationEditingActivity] gets called on with
+         * the purpose if "new"
+         *
+         */
+        ma_add_new_button.setOnClickListener{
+            onNewItemButton()
+        }
+
+        /**
+         * if a listView Item gets clicked on the [ExaminationEditingActivity] gets called on with
          * the purpose if "editing"
          *
          */
@@ -211,12 +234,16 @@ class MainActivity : AppCompatActivity() {
 
             if (listView.isItemChecked(position)) {
                 listView.setItemChecked(position, false)
-                shareButton.visibility = View.INVISIBLE
-                deleteButton.visibility = View.INVISIBLE
+                shareButton.visibility = View.GONE
+                deleteButton.visibility = View.GONE
+                favorite_Button.visibility=View.VISIBLE
+                sort_Button.visibility=View.VISIBLE
             } else {
                 listView.setItemChecked(position, true)
                 shareButton.visibility = View.VISIBLE
                 deleteButton.visibility = View.VISIBLE
+                sortButton.visibility=View.GONE
+                favoriteButton.visibility=View.GONE
             }
 
             return@setOnItemLongClickListener (true)
@@ -274,19 +301,14 @@ class MainActivity : AppCompatActivity() {
             }
             adapter.notifyDataSetChanged()
         }
-
-        var toggleSearch= false
-        searchButton.setOnClickListener {
-            if(toggleSearch==false) {
-                ma_search_linearLayout.visibility = View.VISIBLE
-                toggleSearch=true
-            }else if (toggleSearch==true){
-                foundHighlight= MutableList(listItems.size) { arrayOf(arrayOf(-1,-1), arrayOf(-1,-1), arrayOf(-1,-1)) }
-                adapter.notifyDataSetChanged()
-                ma_search_linearLayout.visibility=View.INVISIBLE
-                toggleSearch=false
-            }
+        ma_search_cancel_button.setOnClickListener{
+            foundHighlight= MutableList(listItems.size) { arrayOf(arrayOf(-1,-1), arrayOf(-1,-1), arrayOf(-1,-1)) }
+            adapter.notifyDataSetChanged()
+            ma_search_text.text=""
+            ma_search_linearLayout.visibility=View.GONE
+            toggleSearch=false
         }
+
 
         /**
          * marks the most recent items of each examination type
@@ -376,7 +398,7 @@ class MainActivity : AppCompatActivity() {
      *
      * @param view the button which it is connected to
      */
-    fun onNewItemButton(view: View) {
+    fun onNewItemButton() {
         val intent = Intent(this, ExaminationEditingActivity::class.java)
         intent.putExtra("purpose", "new")
         startActivityForResult(intent, NEW_ITEM)
@@ -404,8 +426,10 @@ class MainActivity : AppCompatActivity() {
                 foundHighlight.add(arrayOf(arrayOf(-1,-1), arrayOf(-1,-1), arrayOf(-1,-1)))
                 adapter.sort(compareByDescending({ it.date }))
                 saveToFile()
-                share_Button.visibility = View.INVISIBLE
-                delete_Button.visibility = View.INVISIBLE
+                share_Button.visibility = View.GONE
+                delete_Button.visibility = View.GONE
+                favorite_Button.visibility=View.VISIBLE
+                sort_Button.visibility=View.VISIBLE
                 onRestart()
 
             }
@@ -420,16 +444,20 @@ class MainActivity : AppCompatActivity() {
                 //restating the main activity
                 adapter.sort(compareByDescending({ it.date }))
                 saveToFile()
-                share_Button.visibility = View.INVISIBLE
-                delete_Button.visibility = View.INVISIBLE
+                share_Button.visibility = View.GONE
+                delete_Button.visibility = View.GONE
+                favorite_Button.visibility=View.VISIBLE
+                sort_Button.visibility=View.VISIBLE
                 onRestart()
             }
         }
 
         //return from the cancel button of the editing Activity
         if (resultCode == Activity.RESULT_CANCELED) {
-            share_Button.visibility = View.INVISIBLE
-            delete_Button.visibility = View.INVISIBLE
+            share_Button.visibility = View.GONE
+            delete_Button.visibility = View.GONE
+            favorite_Button.visibility=View.VISIBLE
+            sort_Button.visibility=View.VISIBLE
             onRestart()
 
         }
@@ -450,8 +478,10 @@ class MainActivity : AppCompatActivity() {
             foundHighlight.removeAt(currentPosition)
 
             saveToFile()
-            share_Button.visibility = View.INVISIBLE
-            delete_Button.visibility = View.INVISIBLE
+            share_Button.visibility = View.GONE
+            delete_Button.visibility = View.GONE
+            favorite_Button.visibility=View.VISIBLE
+            sort_Button.visibility=View.VISIBLE
             onRestart()
         }
 

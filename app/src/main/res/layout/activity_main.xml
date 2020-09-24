@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
@@ -24,6 +25,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:background="@color/colorAccent"
         app:layout_constraintTop_toBottomOf="@id/linearLayout2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -39,8 +41,15 @@
             android:id="@+id/ma_gosearch_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.5"
+            android:layout_weight="0.2"
             app:srcCompat="@android:drawable/ic_menu_send" />
+
+        <ImageButton
+            android:id="@+id/ma_search_cancel_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.2"
+            app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
 
     </LinearLayout>
 
@@ -48,31 +57,35 @@
         android:id="@+id/listview_1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginBottom="8dp"
         android:footerDividersEnabled="false"
         android:headerDividersEnabled="false"
-        app:layout_constraintBottom_toTopOf="@+id/button"
+        android:scrollbarFadeDuration="0"
+        android:scrollbarSize="12dip"
+        app:layout_constraintBottom_toBottomOf="@+id/scrollView5"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ma_search_linearLayout" />
 
 
-    <Button
-        android:id="@+id/button"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/ma_add_new_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:onClick="onNewItemButton"
-        android:text="@string/new_examination"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        android:clickable="true"
+        android:scaleType="center"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toBottomOf="@+id/scrollView5"
+        app:layout_constraintEnd_toEndOf="@+id/scrollView5"
+        app:srcCompat="@drawable/ic_action_add" />
 
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:background="@color/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -110,18 +123,11 @@
         <ImageButton
             android:id="@+id/sort_Button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            app:srcCompat="@android:drawable/ic_menu_sort_by_size"
+            app:srcCompat="@drawable/ic_examination_time"
+            android:scaleType="fitCenter"
             android:contentDescription="@string/sort_by_examination_time" />
-
-        <ImageButton
-            android:id="@+id/search_Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            app:srcCompat="@android:drawable/ic_menu_search"
-            android:contentDescription="@string/search" />
 
     </LinearLayout>
 
