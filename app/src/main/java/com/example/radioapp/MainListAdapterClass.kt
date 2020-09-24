@@ -127,6 +127,9 @@ class MainListAdapterClass(
         if (object_item.image.imageFiles.size >= 1) {
             val currentImage = BitmapFactory.decodeFile(object_item.image.imageFiles[0])
             thumbnailImageView.setImageBitmap(currentImage)
+        }else{
+            val stockImage=BitmapFactory.decodeResource(context.resources,R.drawable.camera_simple)
+            thumbnailImageView.setImageBitmap(stockImage)
         }
 
         //setting the checkbox from saved object
