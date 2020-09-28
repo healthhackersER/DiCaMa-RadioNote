@@ -43,7 +43,8 @@ class ExaminationEditingActivity : AppCompatActivity() {
     var currentMarker: MutableList< MutableList<FloatArray>> = mutableListOf()
     var currentImageMarked: MutableList<String> = mutableListOf()
     private lateinit var myStringMap: MutableMap<String, String>
-
+//    private val defaultImage =
+//        BitmapFactory.decodeResource(this.resources, R.drawable.camera_simple)
     var clickList = mutableListOf<Any>()
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -108,11 +109,6 @@ class ExaminationEditingActivity : AppCompatActivity() {
         myStringMap = parseStringArray(R.array.key_string_array, this)
 
         //variables and values for different buttons, textfields ect.
-        val okButton = findViewById<Button>(R.id.ee_ok_button)
-        val cancelButton = findViewById<Button>(R.id.ee_cancel_button)
-        val deleteButton = findViewById<ImageButton>(R.id.ee_delete_button)
-
-
 
         val purpose = intent.getStringExtra("purpose")
         val editAblageort = findViewById<TextView>(R.id.ee_storage_editText)
@@ -123,6 +119,7 @@ class ExaminationEditingActivity : AppCompatActivity() {
         var spinner_selection: Int? = null
         var favorites = false
         val intent = intent
+
 
         //random listView position initialization to make it none null
         var position: Int = 505
@@ -198,15 +195,7 @@ class ExaminationEditingActivity : AppCompatActivity() {
 
 
             //showing the image if the examination has an image
-            if (objectClass.image.imageFiles.size >= 1) {
-                val currentImage = BitmapFactory.decodeFile(objectClass.image.imageFiles[0])
-                ee_imageView.setImageBitmap(currentImage)
-                ee_image_text.text=currentPhotoDescription[0]
-            } else if (objectClass.image.imageFiles.size == 0) {
-                val defaultImage =
-                    BitmapFactory.decodeResource(this.resources, R.drawable.camera_image)
-                ee_imageView.setImageBitmap(defaultImage)
-            }
+            setUpImage(objectClass.image)
 
             //setting up the spinner
             val currentPosition = objectClass.type!!
@@ -220,15 +209,17 @@ class ExaminationEditingActivity : AppCompatActivity() {
 
         //if the activity was started by the new exmamination button set up default image
         if (purpose == "new") {
-            val defaultImage = BitmapFactory.decodeResource(this.resources, R.drawable.camera_image)
+            val defaultImage =
+            BitmapFactory.decodeResource(this.resources, R.drawable.camera_simple)
             ee_imageView.setImageBitmap(defaultImage)
+            ee_imageView1.setImageBitmap(defaultImage)
         }
 
 
         /**
          * if the user is finnished and clicks on the ok button the edited/entered values get returned to the main activity
          */
-        okButton.setOnClickListener {
+        ee_ok_button.setOnClickListener {
             val nameExamination = edit_Beschreibung.text.toString()
             val dateExamination = edit_Date.text.toString()
             val storageData = ee_storage_editText.text.toString()
@@ -284,6 +275,14 @@ class ExaminationEditingActivity : AppCompatActivity() {
             setResult(Activity.RESULT_OK, okIntent)
             finish()
         }
+        /**
+         * sets todays date to the date text field
+         */
+        ee_today_button.setOnClickListener{
+            val date=LocalDate.now()
+            editDate.text=date.format(formatter)
+        }
+
 
         /**
          * when the type info button is clicked
@@ -305,7 +304,7 @@ class ExaminationEditingActivity : AppCompatActivity() {
         /**
          * when the cancel button is clicked
          */
-        cancelButton.setOnClickListener {
+        ee_cancel_button.setOnClickListener {
             val cancelIntent = Intent(this, MainActivity::class.java)
             setResult(Activity.RESULT_CANCELED, cancelIntent)
             finish()
@@ -314,7 +313,7 @@ class ExaminationEditingActivity : AppCompatActivity() {
         /**
          * when the delete button gets clicked the MainActivity gets notified to delete this item
          */
-        deleteButton.setOnClickListener {
+        ee_delete_button.setOnClickListener {
             val deleteIntent = Intent(this, MainActivity::class.java)
             //when the delete button was clicked when a new item was created do the same as cancel
             if (position == 505) {
@@ -331,27 +330,20 @@ class ExaminationEditingActivity : AppCompatActivity() {
             }
         }
 
-        /**
-         * when the cameraButton is clicked on the CameraEditingActivity gets started
-         */
+        //connecting Buttons and Image views to start camera activity
         ee_camera_button.setOnClickListener {
-            val intent = Intent(this, CameraEditingActivity::class.java)
-            val imageData = ImageDataClass(currentPhotoPath, currentPhotoDescription, currentMarker,currentImageMarked)
-            intent.putExtraJson("imageData", imageData)
+           startCamera() }
 
-            startActivityForResult(intent, REQUEST_IMAGE_EDITOR) }
-
-        /**
-         * when the imageViewer is clicked on the CameraEditingActivity gets started
-         */
         ee_imageView.setOnClickListener {
-            val intent = Intent(this, CameraEditingActivity::class.java)
-            val imageData = ImageDataClass(currentPhotoPath, currentPhotoDescription, currentMarker,currentImageMarked)
-            intent.putExtraJson("imageData", imageData)
-
-            startActivityForResult(intent, REQUEST_IMAGE_EDITOR)
+            startCamera()
         }
+        ee_imageView1.setOnClickListener{
+            startCamera()
 
+        }
+        ee_imageView2.setOnClickListener{
+            startCamera()
+        }
 
         /**
          * when the done button on the virtual Keyboard gets clicked on
@@ -417,11 +409,31 @@ class ExaminationEditingActivity : AppCompatActivity() {
                 //checking if the date is in right format
                 if (flag == EDIT_DATE) {
                     val textToCheck = text!!.text.toString()
+                    
                     if (textToCheck.matches("^\\d{2}[/]\\d{2}[/]\\d{4}$".toRegex())) {
-                        target.text = text!!.text.toString()
-                        //force hide the keyboard
-                        inputMethodManager.hideSoftInputFromWindow(text.windowToken, 0)
-                        bottomSheetDialog.dismiss()
+                        var enteredDate: LocalDate
+                        //Sanity check Date
+                        try{
+                        enteredDate=LocalDate.parse(textToCheck,formatter)
+                            if(enteredDate > LocalDate.now()){
+                                Toast.makeText(
+                                    this@ExaminationEditingActivity,
+                                    "Bitte geben sie ein valides Datum in der Vergangenheit ein",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                bottomSheetDialog.show()
+                            }else{
+                                target.text = text!!.text.toString()
+                                //force hide the keyboard
+                                inputMethodManager.hideSoftInputFromWindow(text.windowToken, 0)
+                                bottomSheetDialog.dismiss()
+                            }
+                        }
+                        catch(e: Exception) {
+                            //if anything goes wrong causing exception, get and show exception message
+                            Toast.makeText(this@ExaminationEditingActivity, "Bitte geben sie ein valides Datum ein", Toast.LENGTH_LONG).show()
+                            }
+
                     } else {
                         Toast.makeText(
                             this@ExaminationEditingActivity,
@@ -446,7 +458,66 @@ class ExaminationEditingActivity : AppCompatActivity() {
 
 
     }
+    /**
+     * starting up the [CameraEditingActivity]
+     */
+    private fun startCamera(){
+        val intent = Intent(this, CameraEditingActivity::class.java)
+        val imageData = ImageDataClass(currentPhotoPath, currentPhotoDescription, currentMarker,currentImageMarked)
+        intent.putExtraJson("imageData", imageData)
 
+        startActivityForResult(intent, REQUEST_IMAGE_EDITOR)
+    }
+
+    /**
+     * setting up the views with images
+     */
+
+    private fun setUpImage(objectClass: ImageDataClass){
+        val defaultImage = BitmapFactory.decodeResource(this.resources, R.drawable.camera_simple)
+        try {
+            if (objectClass.imageFiles.size == 0) {
+                ee_imageView.setImageBitmap(defaultImage)
+                ee_imageView1.setImageBitmap(defaultImage)
+                ee_imageView2.setImageBitmap(defaultImage)
+
+            } else if (objectClass.imageFiles.size == 1) {
+                val currentImage = BitmapFactory.decodeFile(objectClass.imageFiles[0])
+                ee_imageView.setImageBitmap(currentImage)
+                ee_image_text.text = currentPhotoDescription[0]
+                ee_imageView1.setImageBitmap(defaultImage)
+                ee_imageView2.setImageBitmap(defaultImage)
+            } else if (objectClass.imageFiles.size == 2) {
+                val currentImage = BitmapFactory.decodeFile(objectClass.imageFiles[0])
+                val currentImage2 = BitmapFactory.decodeFile(objectClass.imageFiles[1])
+                ee_imageView.setImageBitmap(currentImage)
+                ee_imageView1.setImageBitmap(currentImage2)
+                ee_imageView2.setImageBitmap(defaultImage)
+                ee_image_text.text = currentPhotoDescription[0]
+            } else if (objectClass.imageFiles.size == 3){
+                val currentImage = BitmapFactory.decodeFile(objectClass.imageFiles[0])
+                val currentImage2 = BitmapFactory.decodeFile(objectClass.imageFiles[1])
+                val currentImage3 = BitmapFactory.decodeFile(objectClass.imageFiles[2])
+                ee_imageView.setImageBitmap(currentImage)
+                ee_imageView1.setImageBitmap(currentImage2)
+                ee_imageView2.setImageBitmap(currentImage3)
+                ee_image_text.text = currentPhotoDescription[0]
+            } else if (objectClass.imageFiles.size > 3){
+                val currentImage = BitmapFactory.decodeFile(objectClass.imageFiles[0])
+                val currentImage2 = BitmapFactory.decodeFile(objectClass.imageFiles[1])
+                val currentImage3 = BitmapFactory.decodeFile(objectClass.imageFiles[2])
+                ee_imageView.setImageBitmap(currentImage)
+                ee_imageView1.setImageBitmap(currentImage2)
+                ee_imageView2.setImageBitmap(currentImage3)
+                ee_image_text.text = currentPhotoDescription[0]
+                ee_number_image_text.text="+".plus((objectClass.imageFiles.size-3).toString())
+
+            }
+
+        }catch(e:Exception){
+            Toast.makeText(this@ExaminationEditingActivity, e.message, Toast.LENGTH_LONG).show()
+        }
+    }
 
     /**
      * Check the target view for keywords defined in thisStringMap and sets up a clickable
@@ -537,9 +608,10 @@ class ExaminationEditingActivity : AppCompatActivity() {
             currentImageMarked=currentData.imageMarked
             if (currentPhotoPath.size >= 1) {
                 try {
-                    val takenImage = BitmapFactory.decodeFile(currentPhotoPath[0])
-                    ee_imageView.setImageBitmap(takenImage)
-                    ee_image_text.text=currentPhotoDescription[0]
+                    setUpImage(currentData)
+//                    val takenImage = BitmapFactory.decodeFile(currentPhotoPath[0])
+//                    ee_imageView.setImageBitmap(takenImage)
+//                    ee_image_text.text=currentPhotoDescription[0]
                 } catch (e: Exception) {
                     //if anything goes wrong causing exception, get and show exception message
                     Toast.makeText(this@ExaminationEditingActivity, e.message, Toast.LENGTH_LONG).show()

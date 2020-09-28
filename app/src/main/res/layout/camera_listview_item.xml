@@ -9,18 +9,25 @@ android:layout_height="wrap_content"
 android:background="@drawable/background_selector"
 android:padding="8dp">
 
-<ImageView
-    android:id="@+id/cl_imageView"
-    android:layout_width="70dp"
-    android:layout_height="70dp"
-    android:contentDescription="@string/image" />
+    <androidx.cardview.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="8dp">
+
+        <ImageView
+            android:id="@+id/cl_imageView"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:background="@android:color/black"
+            android:contentDescription="@string/image" />
+    </androidx.cardview.widget.CardView>
 
     <ImageButton
         android:id="@+id/delete_list_image_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="0.5"
-        app:srcCompat="@android:drawable/ic_delete"
+        app:srcCompat="@drawable/ic_delete"
         android:contentDescription="@string/delete" />
 
 

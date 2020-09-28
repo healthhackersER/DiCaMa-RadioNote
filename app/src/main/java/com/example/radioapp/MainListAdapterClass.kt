@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.annotation.RequiresApi
+import java.lang.Exception
 import java.time.format.DateTimeFormatter
 
 
@@ -29,15 +30,17 @@ class MainListAdapterClass(
     context: Context,
     private val layoutResource: Int,
     private val dataSource: MutableList<RadFileDataClass>,
-    ) : ArrayAdapter<RadFileDataClass>(context, layoutResource, dataSource) {
+) : ArrayAdapter<RadFileDataClass>(context, layoutResource, dataSource) {
 
     private val inflater: LayoutInflater =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
     @RequiresApi(Build.VERSION_CODES.O)
     var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+
     //CAVE: tightly coupled
     val castedContext = context as MainActivity
+
     /**
      * gets the size of the Recyclerview
      * @return size
@@ -96,39 +99,74 @@ class MainListAdapterClass(
 
 
         // getting the data from the different listView items and setting them to the view
-        var object_item = getItem(position) as RadFileDataClass
-        var dropdownStringArray = context.resources.getStringArray(R.array.type_array)
-        if (highlight[position][0][0]==-1){
-            titleTextView.text = object_item.examination
-        }else{
-            val highlighted: Spannable = SpannableString(object_item.examination)
-            highlighted.setSpan(BackgroundColorSpan(-0xff0100), highlight[position][0][0], highlight[position][0][1], Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            titleTextView.text=highlighted
+        val object_item = getItem(position) as RadFileDataClass
+        val dropdownStringArray = context.resources.getStringArray(R.array.type_array)
+        if (highlight[position][0][0] == -1) {
+            if (object_item.examination.length > 32) {
+                titleTextView.text = object_item.examination.take(29).plus("...")
+            } else {
+                titleTextView.text = object_item.examination
+            }
+        } else {
+            if (object_item.examination.length > 32) {
+                val highlighted: Spannable =
+                    SpannableString(object_item.examination.take(29).plus("..."))
+                if (highlight[position][0][0] <= 29 && highlight[position][0][1] <= 29) {
+                    highlighted.setSpan(
+                        BackgroundColorSpan(-0xff0100),
+                        highlight[position][0][0],
+                        highlight[position][0][1],
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+
+                titleTextView.text = highlighted
+            } else {
+                val highlighted: Spannable = SpannableString(object_item.examination)
+                highlighted.setSpan(
+                    BackgroundColorSpan(-0xff0100),
+                    highlight[position][0][0],
+                    highlight[position][0][1],
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                titleTextView.text = highlighted
+            }
         }
-        if (highlight[position][1][0]==-1){
+        if (highlight[position][1][0] == -1) {
             subtitleTextView.text = dropdownStringArray[object_item.type!!].toString()
-        }else{
-            val highlighted: Spannable = SpannableString(dropdownStringArray[object_item.type!!].toString())
-            highlighted.setSpan(BackgroundColorSpan(-0xff0100), highlight[position][1][0], highlight[position][1][1], Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            subtitleTextView.text=highlighted
+        } else {
+            val highlighted: Spannable =
+                SpannableString(dropdownStringArray[object_item.type!!].toString())
+            highlighted.setSpan(
+                BackgroundColorSpan(-0xff0100),
+                highlight[position][1][0],
+                highlight[position][1][1],
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            subtitleTextView.text = highlighted
         }
-        if (highlight[position][2][0]==-1){
+        if (highlight[position][2][0] == -1) {
             detailTextView.text = object_item.date?.format(formatter).toString()
-        }else{
-            val highlighted: Spannable = SpannableString(object_item.date?.format(formatter).toString())
-            highlighted.setSpan(BackgroundColorSpan(-0xff0100), highlight[position][2][0], highlight[position][2][1], Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            detailTextView.text=highlighted
+        } else {
+            val highlighted: Spannable =
+                SpannableString(object_item.date?.format(formatter).toString())
+            highlighted.setSpan(
+                BackgroundColorSpan(-0xff0100),
+                highlight[position][2][0],
+                highlight[position][2][1],
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            detailTextView.text = highlighted
         }
-
-
 
 
         //checking if an the examination has an image and displaying it
         if (object_item.image.imageFiles.size >= 1) {
             val currentImage = BitmapFactory.decodeFile(object_item.image.imageFiles[0])
             thumbnailImageView.setImageBitmap(currentImage)
-        }else{
-            val stockImage=BitmapFactory.decodeResource(context.resources,R.drawable.camera_simple)
+        } else {
+            val stockImage =
+                BitmapFactory.decodeResource(context.resources, R.drawable.camera_simple)
             thumbnailImageView.setImageBitmap(stockImage)
         }
 

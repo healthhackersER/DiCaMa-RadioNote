@@ -1,6 +1,7 @@
 package com.example.radioapp
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -22,6 +23,7 @@ import com.itextpdf.text.pdf.PdfWriter
 import kotlinx.android.synthetic.main.activity_create_p_d_f.*
 import java.io.File
 import java.io.FileOutputStream
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 /**
@@ -45,9 +47,11 @@ class CreatePDF : AppCompatActivity() {
      * Initialize the CreatePDF Activity
      *
      */
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_p_d_f)
+        var formatter: DateTimeFormatter? = DateTimeFormatter.ofPattern("dd/MM/yyyy")
         //getting the data from the intent
         val radData=intent.getJsonExtra("radData", RadFileDataClass::class.java)
         listItems = radData!!
@@ -66,12 +70,26 @@ class CreatePDF : AppCompatActivity() {
 
         //setting the text views
         pdf_description_text.text=radData.examination
-        pdf_date_text.text=radData.date.toString()
+        val formattedDate= radData.date?.format(formatter)
+        pdf_date_text.text=formattedDate.toString()
         val stringArray=resources.getStringArray(R.array.type_array)
         pdf_type_text.text=stringArray[radData.type!!]
-        pdf_storage_text.text=radData.storage
-        pdf_evaluation_text.text=radData.evaluation
-        pdf_note_text.text=radData.note
+
+        if (radData.storage==""){
+            pdf_storage_text.text="keine Angabe"
+                    }else{
+            pdf_storage_text.text=radData.storage
+        }
+        if (radData.evaluation==""){
+            pdf_evaluation_text.text="keine Angabe"
+        }else {
+            pdf_evaluation_text.text = radData.evaluation
+        }
+        if (radData.note==""){
+            pdf_note_text.text="keine Angabe"
+        }else {
+            pdf_note_text.text = radData.note
+        }
 
 
         //setting the click listener on the buttons
@@ -84,7 +102,27 @@ class CreatePDF : AppCompatActivity() {
             createdPDF=onCreatePDF()
             previewPDF(createdPDF)
         }
-
+        //toggle all checkboxes
+        var toggle=false
+        pdf_check_all_button.setOnClickListener{
+            if (toggle==false){
+                for (i in includeImageList.indices) {
+                    includeImageList[i]=true
+                    includeMarkerList[i]=true
+                    includeImageDescription[i]=true
+                }
+                adapter.notifyDataSetChanged()
+                toggle=true
+            }else{
+                for (i in includeImageList.indices) {
+                    includeImageList[i]=false
+                    includeMarkerList[i]=false
+                    includeImageDescription[i]=false
+                }
+                adapter.notifyDataSetChanged()
+                toggle=false
+            }
+        }
 
         //initializing some checkboxes with true
         pdf_description_checkbox.isChecked = true

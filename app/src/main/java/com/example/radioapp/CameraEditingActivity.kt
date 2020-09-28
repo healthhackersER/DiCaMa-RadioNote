@@ -112,7 +112,6 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
 
         //setting up values for the different buttons
 
-        val okCameraButton = findViewById<Button>(R.id.ok_camera_button)
         val editBildbeschreibung = findViewById<TextView>(R.id.edit_text_Bildbeschreibung)
 
 
@@ -127,7 +126,7 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
         recyclerView.adapter = adapter
 
         //setting up the initial image in the big image viewer
-        val defaultImage = BitmapFactory.decodeResource(this.resources, R.drawable.camera_image)
+        val defaultImage = BitmapFactory.decodeResource(this.resources, R.drawable.camera_simple)
         big_imageView.setImage(ImageSource.bitmap(defaultImage))
 
 
@@ -165,7 +164,7 @@ class CameraEditingActivity : AppCompatActivity(), RecyclerAdapter.OnItemClickLi
         }
 
         //finishing the Camera editing activity
-        okCameraButton.setOnClickListener {
+        ok_camera_button.setOnClickListener {
             onOkButton()
         }
 
