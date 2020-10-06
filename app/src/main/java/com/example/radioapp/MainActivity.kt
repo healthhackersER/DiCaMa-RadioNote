@@ -453,13 +453,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         //return from the cancel button of the editing Activity
-        if (resultCode == Activity.RESULT_CANCELED) {
+        if (resultCode == Activity.RESULT_CANCELED && requestCode== EDIT_ITEM||requestCode== NEW_ITEM) {
             share_Button.visibility = View.GONE
             delete_Button.visibility = View.GONE
             favorite_Button.visibility=View.VISIBLE
             sort_Button.visibility=View.VISIBLE
             onRestart()
 
+        }else if(resultCode == Activity.RESULT_CANCELED && requestCode==CREATE_PDF){
+            onRestart()
         }
 
         //return from the delete button of the editing Activity

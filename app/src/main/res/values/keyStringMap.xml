@@ -1,19 +1,117 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string-array name="key_string_array">
-        <item>tnm|Die TNM-Klassifikation ist eine Klassifikation zum Staging von Tumorerkrankungen. Die mehrdimensionale Einteilung gibt unterschiedliche Schweregrade hinsichtlich der Ausdehnung (Größe, Infiltrationstiefe) des Primärtumors (T), des Lymphknotenbefalls (N) und allfälliger Metastasen (M) an.</item>
-        <item>vollständige|Wird auch vollständige Remission genannt. Die Krankheit ist mit den zur Verfügung stehenden diagnostischen Maßnahmen nicht mehr nachweisbar.</item>
-        <item>partielle|Das Tumorvolumen wurde um mehr als 50 % vermindert unter der derzeitigen Therapie im Vergleich zur Untersuchung vor der derzeitigen Therapie</item>
-        <item>stabile|Eine stabile Erkrankung bedeutet, dass sich das Volumen des Tumors um weniger als 25 % geändert hat</item>
-        <item>progression|Eine in progression befindliche Erkrankung bedeutet ein Wachstum des Tumors um mindestens 25 %</item>
-        <item>progressive|Eine in progression befindliche Erkrankung bedeutet ein Wachstum des Tumors um mindestens 25 %</item>
-        <item>infiltrate|Im Kontext einer Untersuchung der Lunge bezeichnen Infiltrate meistens eine entzündliche Veränderung, im Allgemeinen bezeichnet der Begriff das Eindringen einer Substanz in biologisches Gewebe</item>
-        <item>ergüsse|Bezeichnen Ergüsse meist Pleuraergüsse. Dies ist eine Ansammlung von Flüssigkeit zwischen der Lunge und der Thoraxwand. Dies kann eine Vielzahl von Ursachen haben. Ergüsse können die Atmung Einschränken wenn sie zu groß werden. </item>
-        <item>pneumothorax|Ein Pneumothorax bezeichnet eine Luftansammlung zwischen der Lunge und der Thoraxwand. Dies kann dazu führen, dass die Lunge kollabiert. Häufig treten Pneumothoraxe im Rahmen einer Lungenpunktion auf, können aber auch spontan entstehen. Kleinere Pneumothoraxe resorbieren sich meist von selbst und sind nicht akut behandlungsbedürftig. Akut gefährlich und behandlungsbedürftig ist der sogenannte Spannungspneumothorax, wobei Luft durch einen Ventil Mechanismus in den Pleuraspalt gelangt und nicht mehr entweichen kann. </item>
-        <item>empyem|Ein Empyem bezeichnet eine Ansammlung von Eiter in einer vorgeformten Körperhöhle wie zum Beispiel dem Pleuraspalt. Empyeme deuten auf einen starken entzündlichen Prozess hin.</item>
-        <item>abszess|Ein Abszess ist eine Ansammlung von Eiter in einer nicht vorgeformten Höhle. Abszesse deuten auf einen starken entzündlichen Prozess hin. </item>
-        <item>raumforderung|Eine Raumforderung bezeichnet zunächst eine unphysiologische Volumenname im Körper. Diese können unterschiedliche Ursachen habe. Die Ursachen können gutartiger Natur sein. Im Rahmen einer zugrundeliegenden Krebserkrankung können Raumforderungen aber auch bösartiger Natur sein und zum Beispiel Metastasen darstellen. Je nach Struktur und Lage der Raumforderungen müssen die Raumforderungen gegebenenfalls weiter untersucht werden oder im Verlauf kontrolliert werden. </item>
-        <item>emphysem|Als Emphysem bezeichnet man das unphysiologische erhöhte Vorkommen von Luft oder Gas im Gewebe. Emphyseme in der Lunge treten zum Beispiel im Rahmen der COPD auf. Emphyseme in anderen Körpergeweben können nach einer medizinischen Intervention auftreten. Ohne Eingriff können sie aber auch im Rahmen entzündlicher Prozesse auftreten. </item>
+  <string-array name="key_string_array">
+    <item>abszess|Ein Abszess ist eine Ansammlung von Eiter in einer nicht vorgeformten Höhle. 
+Abszesse deuten auf einen starken entzündlichen Prozess hin. </item>
+    <item>abzesse|Ein Abszess ist eine Ansammlung von Eiter in einer nicht vorgeformten Höhle. 
+Abszesse deuten auf einen starken entzündlichen Prozess hin. </item>
+    <item>aortendissektion|Die Aortendissektion ist eine akute Aufspaltung der Wandschichten der Hauptschlagader. Der Einriss kann verschiedene Ausmaße annehmen und ist meist akut Behandlungsbedürftig. </item>
+    <item>caecum|Caecum ist ein Synonym für den Blinddarm. Umgangssprachlich wird oft der Wurmfortsatz ( Appendix vermiformis) als Blinddarm bezeichnet.</item>
+    <item>darmperforation|Als Darmperforation bezeichnet man einen örtlich begrenzten Durchbruch von Darminhalt durch die Darmwand in die Bauchhöhle. 
+  
+Man unterscheidet zwischen der freien und der gedeckten Perforation. Bei der gedeckten Perforation wird die Bruchstelle von einem benachbarten Organ abgedichtet. 
+  
+Bei der freien Perforation gelangt der Darminhalt in die Bauchhöhle was akut behandlungsbedürftig ist. </item>
+    <item>dhc|Der Ductus choledochus ist ein Teil der extrahepatischen Gallenwege. 
 
-    </string-array>
+Ein Verschluss des Ductus choledochus durch einen Tumor oder einen Gallenstein führt zu einem Verschlussikterus. </item>
+    <item>divertikel|Divertikel sind Aussackungen der Wand eines Hohlorgans. Sie können eine Vielzahl an Organen betreffen. 
+  
+Im Bereich des Darms betreffen sie meist das Kolon. Das vermehrte Auftreten von Divertikeln bezeichnet man als Divertikulose. Entzünden sich die Divertikel so spricht man von einer Divertikulitis. </item>
+    <item>divertikulitis|Divertikel sind Aussackungen der Wand eines Hohlorgans. Sie können eine Vielzahl an Organen betreffen. 
+  
+Im Bereich des Darms betreffen sie meist das Kolon. Das vermehrte Auftreten von Divertikeln bezeichnet man als Divertikulose. Entzünden sich die Divertikel so spricht man von einer Divertikulitis. </item>
+    <item>divertikulose|Divertikel sind Aussackungen der Wand eines Hohlorgans. Sie können eine Vielzahl an Organen betreffen. 
+  
+Im Bereich des Darms betreffen sie meist das Kolon. Das vermehrte Auftreten von Divertikeln bezeichnet man als Divertikulose. Entzünden sich die Divertikel so spricht man von einer Divertikulitis. </item>
+    <item>emphysem|Als Emphysem bezeichnet man das unphysiologische erhöhte Vorkommen von Luft oder Gas im Gewebe.
+
+Emphyseme in der Lunge treten zum Beispiel im Rahmen der COPD auf.
+
+Emphyseme in anderen Körpergeweben können nach einer medizinischen Intervention auftreten. Ohne Eingriff können sie aber auch im Rahmen entzündlicher Prozesse auftreten. </item>
+    <item>emphyseme|Als Emphysem bezeichnet man das unphysiologische erhöhte Vorkommen von Luft oder Gas im Gewebe.
+
+Emphyseme in der Lunge treten zum Beispiel im Rahmen der COPD auf.
+
+Emphyseme in anderen Körpergeweben können nach einer medizinischen Intervention auftreten. Ohne Eingriff können sie aber auch im Rahmen entzündlicher Prozesse auftreten. </item>
+    <item>empyem|Ein Empyem bezeichnet eine Ansammlung von Eiter in einer vorgeformten Körperhöhle wie zum Beispiel dem Pleuraspalt. Empyeme deuten auf einen starken entzündlichen Prozess hin.</item>
+    <item>empyeme|Ein Empyem bezeichnet eine Ansammlung von Eiter in einer vorgeformten Körperhöhle wie zum Beispiel dem Pleuraspalt. Empyeme deuten auf einen starken entzündlichen Prozess hin.</item>
+    <item>erguss|Bezeichnen Ergüsse meist Pleuraergüsse. Dies ist eine Ansammlung von Flüssigkeit zwischen der Lunge und der Thoraxwand.
+
+Dies kann eine Vielzahl von Ursachen haben. Ergüsse können die Atmung Einschränken wenn sie zu groß werden. </item>
+    <item>ergüsse|Bezeichnen Ergüsse meist Pleuraergüsse. Dies ist eine Ansammlung von Flüssigkeit zwischen der Lunge und der Thoraxwand. 
+Dies kann eine Vielzahl von Ursachen haben. Ergüsse können die Atmung Einschränken wenn sie zu groß werden. </item>
+    <item>hämatogen|Hämatogen deutet im Allgemeinen auf einen Zusammenhang mit dem Blut hin. 
+  
+Im Zusammenhang mit dem Begriff Metastasierung bedeutet es, dass die Metastasen aufgrund des Streumusters wahrscheinlich über den Blutkreislauf gestreut wurden. </item>
+    <item>hämatom|Ein Hämatom ist eine Ansammlung von Blut, das aus den Blutgefäßen in das extravasale Körpergewebe oder einen präformierten Hohlraum ausgetreten ist.
+</item>
+    <item>ileus|Ein Ileus ist ein Verschluss des Darms, der zu einer Aufhebung der Darmpassage führen und bedarf oft einer sofortigen Behandlung.</item>
+    <item>infiltrate|Im Kontext einer Untersuchung der Lunge bezeichnen Infiltrate meistens eine entzündliche Veränderung, im Allgemeinen bezeichnet der Begriff das Eindringen einer Substanz in biologisches Gewebe</item>
+    <item>ischämie|Als Ischämie bezeichnet man die pathologisch verminderte oder aufgehobene Durchblutung eines Gewebes infolge mangelnden Blutzufuhr mit sauerstoffreichem Blut. 
+  
+Dies kann letztendlich alle Organe betreffen und ist meist akut behandlungsbedürftig. </item>
+    <item>ischämisch|Als Ischämie bezeichnet man die pathologisch verminderte oder aufgehobene Durchblutung eines Gewebes infolge mangelnden Blutzufuhr mit sauerstoffreichem Blut. 
+  
+Dies kann letztendlich alle Organe betreffen und ist meist akut behandlungsbedürftig. </item>
+    <item>kolon|Das Kolon befindet sich als längster Teil des Dickdarmes zwischen dem Blinddarm und dem Enddarm.</item>
+    <item>kolonperforation|Als Darmperforation bezeichnet man einen örtlich begrenzten Durchbruch von Darminhalt durch die Darmwand in die Bauchhöhle. 
+  
+Man unterscheidet zwischen der freien und der gedeckten Perforation. Bei der gedeckten Perforation wird die Bruchstelle von einem benachbarten Organ abgedichtet. 
+  
+Bei der freien Perforation gelangt der Darminhalt in die Bauchhöhle was akut behandlungsbedürftig ist. </item>
+    <item>mensenterial|Das Mesenterium ist eine Verdoppelung des Bauchfells, die von der hinteren Bauchwand ausgeht.
+
+An den Mesenterien sind die jeweiligen Darmabschnitte elastisch aufgehängt, so dass sie in der Bauchhöhle zwar teilweise fixiert, aber dennoch beweglich sind.   
+der Begriff mesenterial wird zur anatomischen Einteilung genutzt </item>
+    <item>mensenterium|Das Mesenterium ist eine Verdoppelung des Bauchfells, die von der hinteren Bauchwand ausgeht.
+
+An den Mesenterien sind die jeweiligen Darmabschnitte elastisch aufgehängt, so dass sie in der Bauchhöhle zwar teilweise fixiert, aber dennoch beweglich sind.   
+der Begriff mesenterial wird zur anatomischen Einteilung genutzt </item>
+    <item>pankreas|Das Pankreas oder Bauchspeicheldrüse ist ein quer im Oberbauch liegendes Drüsenorgan des Menschen, das Verdauungsenzyme und Hormone produziert. 
+  
+Unter andrem ist es wichtig für die Produktion von Insulin. 
+  
+Aufgrund seiner anatomischen Lage ist es im Rahmen einer Tumorerkrankung schwer operativ zugänglich. </item>
+    <item>partielle|der Begriff partiell wird oft im Rahmen einer partiellen Remission benutz bei der Beurteilung des Verlaufes einer Tumorerkrankung. 
+  
+In diesem Zusammenhang bedeutet es, dass das Tumorvolumen unter der derzeitigen Therapie um weniger als 25 % vermindert wurde. </item>
+    <item>pleuraerguss|Ein Pleuraerguss ist eine Ansammlung von Flüssigkeit zwischen der Lunge und der Thoraxwand. 
+Dies kann eine Vielzahl von Ursachen haben. Ergüsse können die Atmung Einschränken wenn sie zu groß werden. </item>
+    <item>pleuraergüsse|Ein Pleuraerguss ist eine Ansammlung von Flüssigkeit zwischen der Lunge und der Thoraxwand. 
+Dies kann eine Vielzahl von Ursachen haben. Ergüsse können die Atmung Einschränken wenn sie zu groß werden. </item>
+    <item>pneumothorax|Ein Pneumothorax bezeichnet eine Luftansammlung zwischen der Lunge und der Thoraxwand. Dies kann dazu führen, dass die Lunge kollabiert. Häufig treten Pneumothoraxe im Rahmen einer Lungenpunktion auf, können aber auch spontan entstehen. Kleinere Pneumothoraxe resorbieren sich meist von selbst und sind nicht akut behandlungsbedürftig. Akut gefährlich und behandlungsbedürftig ist der sogenannte Spannungspneumothorax, wobei Luft durch einen Ventil Mechanismus in den Pleuraspalt gelangt und nicht mehr entweichen kann. </item>
+    <item>progression|Eine in progression befindliche Erkrankung bedeutet ein Wachstum des Tumors um mindestens 25 %</item>
+    <item>progressive|der Begriff progressive wird oft im Rahmen einer progressiven Erkrankung benutz bei der Beurteilung des Verlaufes einer Tumorerkrankung. 
+  
+In diesem Zusammenhang bedeutet es, dass das Tumorvolumen unter der derzeitigen Therapie sich um mehr als 25 % vergößert hat.</item>
+    <item>raumforderung|Eine Raumforderung bezeichnet zunächst eine unphysiologische Volumenname im Körper. 
+
+Diese können unterschiedliche Ursachen habe. 
+
+Die Ursachen können gutartiger Natur sein. Im Rahmen einer zugrundeliegenden Krebserkrankung können Raumforderungen aber auch bösartiger Natur sein und zum Beispiel Metastasen darstellen. 
+
+Je nach Struktur und Lage der Raumforderungen müssen die Raumforderungen gegebenenfalls weiter untersucht werden oder im Verlauf kontrolliert werden. </item>
+    <item>raumforderungen|Eine Raumforderung bezeichnet zunächst eine unphysiologische Volumenname im Körper. 
+
+Diese können unterschiedliche Ursachen habe. 
+
+Die Ursachen können gutartiger Natur sein. Im Rahmen einer zugrundeliegenden Krebserkrankung können Raumforderungen aber auch bösartiger Natur sein und zum Beispiel Metastasen darstellen. 
+
+Je nach Struktur und Lage der Raumforderungen müssen die Raumforderungen gegebenenfalls weiter untersucht werden oder im Verlauf kontrolliert werden. </item>
+    <item>recist|Response Evaluation Criteria In Solid Tumors (RECIST), deutsch etwa Kriterien für die Bewertung des Ansprechens der Behandlung bei soliden Tumoren. 
+
+Es handelt sich hierbei um eine Sammlung von Regeln um die Behandlungserfolge einer Tumorerkrankung zu bewerten.</item>
+    <item>retroperitoneal|bedeutet "hinter dem Bauchfell gelegen". 
+  
+Im Rahmen einer Tumorerkrankung ist diese Einteilung wichtig, da das Bauchfell die Bauchhöhle anatomisch von retroperitonealen Organen wie der Niere, oder der Bauchspeicheldrüse abgrenzt. </item>
+    <item>subileus|Unter einem Subileus versteht man einen klinisch noch nicht voll entwickelten Verschluss des Darms. 
+
+</item>
+    <item>tnm|Die TNM-Klassifikation ist eine Klassifikation zum Staging von Tumorerkrankungen. Die mehrdimensionale Einteilung gibt unterschiedliche Schweregrade hinsichtlich der Ausdehnung (Größe, Infiltrationstiefe) des Primärtumors (T), des Lymphknotenbefalls (N) und der Metastasen (M) an.</item>
+    <item>volvulus|Als Volvulus bezeichnet man die angeborene oder erworbene Verdrehung eines Organs, besonders die Verdrehung von Darmabschnitten. 
+
+Dies kann zu einem mechanischen Verschluss der Darmpassage führen.</item>
+    <item>zns|Als das Zentralnervensystem, kurz ZNS, des Menschen bezeichnet man die im Gehirn und Rückenmark gelegenen Nervenstrukturen.</item>
+  </string-array>
 </resources>

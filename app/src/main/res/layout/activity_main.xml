@@ -57,11 +57,12 @@
         android:id="@+id/listview_1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
         android:footerDividersEnabled="false"
         android:headerDividersEnabled="false"
         android:scrollbarFadeDuration="0"
         android:scrollbarSize="12dip"
-        app:layout_constraintBottom_toBottomOf="@+id/scrollView5"
+        app:layout_constraintBottom_toTopOf="@+id/ma_add_new_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ma_search_linearLayout" />
