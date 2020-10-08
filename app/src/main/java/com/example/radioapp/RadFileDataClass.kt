@@ -20,11 +20,12 @@ import java.util.*
 data class RadFileDataClass (
     val examination: String,
     val type: Int?,
-    val date: LocalDate?,
+    var date: LocalDate?,
     val storage: String?,
     val evaluation: String?,
     val note: String?,
     val image: ImageDataClass,
     var favorites: Boolean,
-    var highlight: Boolean
+    var highlight: Boolean,
+    var stringDate: String?,
 )

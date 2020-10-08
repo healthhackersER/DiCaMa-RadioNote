@@ -182,8 +182,9 @@ class ExaminationEditingActivity : AppCompatActivity() {
             //loading the data from the data object
             edit_Beschreibung.setText(objectClass!!.examination)
 
-            val dateFormatted = objectClass!!.date?.format(formatter)
-            edit_Date.setText(dateFormatted.toString())
+            //val dateFormatted = objectClass!!.date?.format(formatter)
+            //edit_Date.setText(dateFormatted.toString())
+            edit_Date.text=objectClass.stringDate
             favorites = objectClass.favorites
             ee_storage_editText.text = objectClass!!.storage
             ee_evaluation_textEdit.text = objectClass!!.evaluation
@@ -266,7 +267,8 @@ class ExaminationEditingActivity : AppCompatActivity() {
                 noteData,
                 ImageDataClass(currentPhotoPath, currentPhotoDescription, currentMarker,currentImageMarked),
                 favoritesOut,
-                highlight = false
+                highlight = false,
+                stringDate = dateExamination
             )
 
             val okIntent = Intent(this, MainActivity::class.java)

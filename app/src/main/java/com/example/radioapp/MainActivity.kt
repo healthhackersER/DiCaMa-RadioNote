@@ -29,6 +29,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_main.*
 import java.nio.file.Paths
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 //help function
@@ -422,6 +423,9 @@ class MainActivity : AppCompatActivity() {
             if (requestCode == NEW_ITEM) {
 
                 val dataObject = data?.getJsonExtra("data", RadFileDataClass::class.java)
+                if (dataObject != null) {
+                    dataObject.date=LocalDate.parse(dataObject.stringDate,formatter)
+                }
                 adapter.add(dataObject)
                 foundHighlight.add(arrayOf(arrayOf(-1,-1), arrayOf(-1,-1), arrayOf(-1,-1)))
                 adapter.sort(compareByDescending({ it.date }))
@@ -437,6 +441,9 @@ class MainActivity : AppCompatActivity() {
             if (requestCode == EDIT_ITEM) {
                 val currentPosition = data?.getIntExtra("position", 0)
                 val dataObject = data?.getJsonExtra("data", RadFileDataClass::class.java)
+                if (dataObject != null) {
+                    dataObject.date=LocalDate.parse(dataObject.stringDate,formatter)
+                }
                 val currentItem = adapter.getItem(currentPosition!!)
                 adapter.remove(currentItem)
 
@@ -498,6 +505,9 @@ class MainActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences(SHARED_PREFERANCES, Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         val gson = Gson()
+        for (i in listItems.indices){
+            listItems[i].stringDate= listItems[i].date?.format(formatter).toString()
+        }
         val json = gson.toJson(listItems)
         editor.putString(KEY_PATH, json)
         editor.apply()
@@ -556,6 +566,10 @@ class MainActivity : AppCompatActivity() {
 
         if (listItems == null) {
             listItems = mutableListOf<RadFileDataClass>()
+        }else{
+            for (i in listItems.indices){
+                listItems[i].date= LocalDate.parse(listItems[i].stringDate,formatter)
+            }
         }
         return listItems
     }

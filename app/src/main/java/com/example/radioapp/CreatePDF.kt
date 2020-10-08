@@ -24,6 +24,7 @@ import kotlinx.android.synthetic.main.activity_create_p_d_f.*
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -56,6 +57,9 @@ class CreatePDF : AppCompatActivity() {
         var formatter: DateTimeFormatter? = DateTimeFormatter.ofPattern("dd/MM/yyyy")
         //getting the data from the intent
         val radData=intent.getJsonExtra("radData", RadFileDataClass::class.java)
+        if (radData != null) {
+            radData.date= LocalDate.parse(radData.stringDate,formatter)
+        }
         listItems = radData!!
         //initializing the variables
         val len = listItems.image.imageFiles.size
@@ -152,7 +156,7 @@ class CreatePDF : AppCompatActivity() {
     private fun onCreatePDF(): File {
         val mDoc = Document()
         //pdf file name
-        val mFileName = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(System.currentTimeMillis())
+        val mFileName = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(System.currentTimeMillis())+".pdf"
         //pdf file path
         val mFileDirectory = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         val mFilePath=mFileDirectory!!.resolve(mFileName)
@@ -259,11 +263,11 @@ class CreatePDF : AppCompatActivity() {
             for (i in includeImageList.indices) {
                 if (includeImageList[i] && !includeMarkerList[i]) {
                     val image = Image.getInstance(listItems.image.imageFiles[i])
-                    image.scalePercent(20F)
+                    image.scaleToFit(250F,250F)
                     mDoc.add(image)
                 } else if (includeImageList[i] && includeMarkerList[i]) {
                     val image = Image.getInstance(listItems.image.imageMarked[i])
-                    image.scalePercent(20F)
+                    image.scaleToFit(250F,250F)
                     mDoc.add(image)
                 }
                 if (includeImageDescription[i]){
