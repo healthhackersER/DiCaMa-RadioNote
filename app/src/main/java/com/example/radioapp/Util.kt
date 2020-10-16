@@ -1,11 +1,13 @@
 package com.example.radioapp
 
 import android.Manifest
+import android.R
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.PointF
 import android.icu.text.SimpleDateFormat
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import androidx.annotation.RequiresApi
@@ -13,9 +15,10 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.io.File
 import java.io.IOException
-import java.util.*
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.*
+
 
 /**
  * permission array
@@ -62,14 +65,15 @@ fun requestPermission(context: Context) {
  *///creates a unique pathname for the image files
 @RequiresApi(Build.VERSION_CODES.N)
 @Throws(IOException::class)
-fun createImageFile(context:Context): File {
+fun createImageFile(context: Context): File {
     // Create an image file name
     val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
     val storageDir: File? = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
     return File.createTempFile(
         "JPEG_${timeStamp}_", /* prefix */
         ".jpg", /* suffix */
-        storageDir /* directory */)
+        storageDir /* directory */
+    )
 }
 
 /**
@@ -109,10 +113,10 @@ fun Path.delete(): Boolean {
  * @param list
  * @return pountArray
  */
-fun listToArray(list:MutableList<FloatArray>):Array<PointF>{
+fun listToArray(list: MutableList<FloatArray>):Array<PointF>{
     var pointList = mutableListOf<PointF>()
     for (i in list.indices){
-        pointList.add(PointF(list[i][0],list[i][1]))
+        pointList.add(PointF(list[i][0], list[i][1]))
     }
     return pointList.toTypedArray()
 }
@@ -133,3 +137,4 @@ fun parseStringArray(stringArrayResourceId: Int, context: Context): MutableMap<S
     }
     return outputArray
 }
+

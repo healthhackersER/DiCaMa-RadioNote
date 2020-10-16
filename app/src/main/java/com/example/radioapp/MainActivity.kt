@@ -6,11 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Resources
-import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
-import android.text.style.CharacterStyle
-import android.text.style.StyleSpan
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -29,6 +26,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_main.*
 import java.nio.file.Paths
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 //help function
@@ -126,7 +124,7 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
         if (id == R.id.settings_action){
-            Toast.makeText(this, "item Add Clicked", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "To be implemented in the future", Toast.LENGTH_SHORT).show()
             return true
         }
         if (id==R.id.mi_search){
@@ -155,20 +153,14 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //values of different Buttons
-        val shareButton = findViewById<ImageButton>(R.id.share_Button)
-        val deleteButton = findViewById<ImageButton>(R.id.delete_Button)
-        val favoriteButton = findViewById<ImageButton>(R.id.favorite_Button)
-        val sortButton = findViewById<ImageButton>(R.id.sort_Button)
-
         //toggle value for the favorite Button to toggle bettwen date and favorite
         var toggle = false
 
         //making the share and delete button invisible by default
-        shareButton.visibility = View.GONE
-        deleteButton.visibility = View.GONE
-        sortButton.visibility=View.VISIBLE
-        favoriteButton.visibility=View.VISIBLE
+        share_Button.visibility = View.GONE
+        delete_Button.visibility = View.GONE
+        sort_Button.visibility=View.VISIBLE
+        favorite_Button.visibility=View.VISIBLE
         ma_search_linearLayout.visibility=View.GONE
         //requesting the permission at runtime
         if (hasNoPermissions()) {
@@ -207,7 +199,7 @@ class MainActivity : AppCompatActivity() {
          *
          */
         listView.setOnItemClickListener { parent, view, position, id ->
-
+            listView.setItemChecked(position, false)
             val element: RadFileDataClass = parent.getItemAtPosition(position) as RadFileDataClass
             val intent = Intent(this, ExaminationEditingActivity::class.java)
 
@@ -222,7 +214,7 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, e.message, Toast.LENGTH_LONG).show()
             }
             //undo autocheck of item
-            listView.setItemChecked(position, false)
+//            listView.setItemChecked(position, false)
         }
 
         /**
@@ -234,16 +226,16 @@ class MainActivity : AppCompatActivity() {
 
             if (listView.isItemChecked(position)) {
                 listView.setItemChecked(position, false)
-                shareButton.visibility = View.GONE
-                deleteButton.visibility = View.GONE
+                share_Button.visibility = View.GONE
+                delete_Button.visibility = View.GONE
                 favorite_Button.visibility=View.VISIBLE
                 sort_Button.visibility=View.VISIBLE
             } else {
                 listView.setItemChecked(position, true)
-                shareButton.visibility = View.VISIBLE
-                deleteButton.visibility = View.VISIBLE
-                sortButton.visibility=View.GONE
-                favoriteButton.visibility=View.GONE
+                share_Button.visibility = View.VISIBLE
+                delete_Button.visibility = View.VISIBLE
+                sort_Button.visibility=View.GONE
+                favorite_Button.visibility=View.GONE
             }
 
             return@setOnItemLongClickListener (true)
@@ -252,7 +244,7 @@ class MainActivity : AppCompatActivity() {
         /**
          * item gets deleted on button click
          */
-        deleteButton.setOnClickListener {
+        delete_Button.setOnClickListener {
             val position = listView.checkedItemPosition
             try{
             onDelete(position)}
@@ -262,7 +254,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        shareButton.setOnClickListener {
+        share_Button.setOnClickListener {
             val position=listView.checkedItemPosition
             try {
                 onShareButton(position)
@@ -276,7 +268,7 @@ class MainActivity : AppCompatActivity() {
          * toggle between sorting for favorites/date
          */
 
-        favoriteButton.setOnClickListener {
+        favorite_Button.setOnClickListener {
             if (toggle == false) {
                 adapter.sort(compareByDescending({ it.favorites }))
                 toggle = true
@@ -291,16 +283,8 @@ class MainActivity : AppCompatActivity() {
             editSearchDialog(ma_search_text, EDIT_TEXT)
 
         }
-        ma_gosearch_button.setOnClickListener{
-            if(ma_search_text.text==""){
-                Toast.makeText(this@MainActivity, "please enter a search text", Toast.LENGTH_LONG).show()
 
-            }else{
-                foundHighlight=searchString(ma_search_text.text.toString())
 
-            }
-            adapter.notifyDataSetChanged()
-        }
         ma_search_cancel_button.setOnClickListener{
             foundHighlight= MutableList(listItems.size) { arrayOf(arrayOf(-1,-1), arrayOf(-1,-1), arrayOf(-1,-1)) }
             adapter.notifyDataSetChanged()
@@ -315,7 +299,7 @@ class MainActivity : AppCompatActivity() {
          * toggle between the marked and not marked
          */
         var toggle_sort=false
-        sortButton.setOnClickListener {
+        sort_Button.setOnClickListener {
             //array with the position of the most recent type Item in the listView. The Index of the array
             //marks the position of the Type defined by the @values keyStringMap
             if(toggle_sort==false) {
@@ -422,6 +406,9 @@ class MainActivity : AppCompatActivity() {
             if (requestCode == NEW_ITEM) {
 
                 val dataObject = data?.getJsonExtra("data", RadFileDataClass::class.java)
+                if (dataObject != null) {
+                    dataObject.date=LocalDate.parse(dataObject.stringDate,formatter)
+                }
                 adapter.add(dataObject)
                 foundHighlight.add(arrayOf(arrayOf(-1,-1), arrayOf(-1,-1), arrayOf(-1,-1)))
                 adapter.sort(compareByDescending({ it.date }))
@@ -437,6 +424,9 @@ class MainActivity : AppCompatActivity() {
             if (requestCode == EDIT_ITEM) {
                 val currentPosition = data?.getIntExtra("position", 0)
                 val dataObject = data?.getJsonExtra("data", RadFileDataClass::class.java)
+                if (dataObject != null) {
+                    dataObject.date=LocalDate.parse(dataObject.stringDate,formatter)
+                }
                 val currentItem = adapter.getItem(currentPosition!!)
                 adapter.remove(currentItem)
 
@@ -453,13 +443,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         //return from the cancel button of the editing Activity
-        if (resultCode == Activity.RESULT_CANCELED) {
+        if (resultCode == Activity.RESULT_CANCELED && requestCode== EDIT_ITEM||requestCode== NEW_ITEM) {
             share_Button.visibility = View.GONE
             delete_Button.visibility = View.GONE
             favorite_Button.visibility=View.VISIBLE
             sort_Button.visibility=View.VISIBLE
             onRestart()
 
+        }else if(resultCode == Activity.RESULT_CANCELED && requestCode==CREATE_PDF){
+            onRestart()
         }
 
         //return from the delete button of the editing Activity
@@ -488,6 +480,18 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+
+    private fun onGoSearch(){
+        if(ma_search_text.text==""){
+            Toast.makeText(this@MainActivity, "please enter a search text", Toast.LENGTH_LONG).show()
+
+        }else{
+            foundHighlight=searchString(ma_search_text.text.toString())
+
+        }
+        adapter.notifyDataSetChanged()
+    }
+
     /**
      * method to save the current data to shared preferences (gets called by the checkBox layout)
      */
@@ -496,6 +500,9 @@ class MainActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences(SHARED_PREFERANCES, Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         val gson = Gson()
+        for (i in listItems.indices){
+            listItems[i].stringDate= listItems[i].date?.format(formatter).toString()
+        }
         val json = gson.toJson(listItems)
         editor.putString(KEY_PATH, json)
         editor.apply()
@@ -554,6 +561,10 @@ class MainActivity : AppCompatActivity() {
 
         if (listItems == null) {
             listItems = mutableListOf<RadFileDataClass>()
+        }else{
+            for (i in listItems.indices){
+                listItems[i].date= LocalDate.parse(listItems[i].stringDate,formatter)
+            }
         }
         return listItems
     }
@@ -619,7 +630,7 @@ class MainActivity : AppCompatActivity() {
 
 
                 target.text = text!!.text.toString()
-
+                onGoSearch()
                 //force hide the keyboard
                 inputMethodManager.hideSoftInputFromWindow(text.windowToken, 0)
 

@@ -23,7 +23,9 @@
                 android:id="@+id/kwd_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/placeholder" />
+                android:text="@string/placeholder"
+                android:textSize="16dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
         </LinearLayout>
     </ScrollView>

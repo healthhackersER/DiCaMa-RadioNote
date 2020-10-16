@@ -3,7 +3,7 @@
     <string name="image_description">Bildbeschreibung</string>
     <string name="ok">OK</string>
     <string name="add_image">Add image</string>
-    <string name="edit_bildbeschreibung">Edit Bildbeschreibung</string>
+    <string name="edit_bildbeschreibung">Bearbeite Bildbeschreibung</string>
     <string name="marker">Marker</string>
     <string name="set_marker">Markierungen setzen</string>
     <string name="cancel">Cancel</string>
@@ -36,4 +36,6 @@
     <string name="include_description">Beschreibung einfügen</string>
     <string name="unable_to_open_camera">Kamera kann nicht geöffnet werden</string>
     <string name="search_term">Such Text</string>
+    <string name="all_images">Alle Bilder</string>
+    <string name="choose_the_information_for_sharing">Wählen sie die Informationen aus die geteilt werden sollen</string>
 </resources>

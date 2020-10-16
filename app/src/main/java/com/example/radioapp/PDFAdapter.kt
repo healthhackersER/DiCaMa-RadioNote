@@ -71,6 +71,7 @@ class PDFAdapter (
         val currentImagePath=radData.image.imageFiles[position]
         val currentImage = BitmapFactory.decodeFile(currentImagePath)
         holder.itemImage.setImageBitmap(currentImage)
+        holder.imageText.text = radData.image.imageDescription[position]
         holder.checkImage.isChecked = includeImageList[position] != false
         holder.checkMarker.isChecked = includeMarkerList[position] != false
         holder.checkDescription.isChecked=includeImageDescriptionList[position] != false
@@ -87,6 +88,7 @@ class PDFAdapter (
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
        {
            val itemImage: ImageView = itemView.findViewById(R.id.pdf_recycler_imageView)
+           val imageText:TextView=itemView.findViewById(R.id.pdf_recycler_text)
            var checkImage: CheckBox = itemView.findViewById(R.id.pdf_recycler_checkImage)
            var checkMarker: CheckBox = itemView.findViewById(R.id.pdf_recycler_checkMarker)
            var checkDescription: CheckBox =

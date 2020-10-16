@@ -38,13 +38,6 @@
             android:layout_weight="1" />
 
         <ImageButton
-            android:id="@+id/ma_gosearch_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.2"
-            app:srcCompat="@android:drawable/ic_menu_send" />
-
-        <ImageButton
             android:id="@+id/ma_search_cancel_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -57,11 +50,12 @@
         android:id="@+id/listview_1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginBottom="8dp"
         android:footerDividersEnabled="false"
         android:headerDividersEnabled="false"
         android:scrollbarFadeDuration="0"
         android:scrollbarSize="12dip"
-        app:layout_constraintBottom_toBottomOf="@+id/scrollView5"
+        app:layout_constraintBottom_toTopOf="@+id/ma_add_new_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ma_search_linearLayout" />
