@@ -34,7 +34,7 @@ class MainListAdapterClass(
 
     private val inflater: LayoutInflater =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-
+    private val dropdownStringArray = context.resources.getStringArray(R.array.type_array)
     @RequiresApi(Build.VERSION_CODES.O)
     var formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
@@ -83,7 +83,7 @@ class MainListAdapterClass(
 
         // Get view for row item
 
-        val titleTextView = rowView.findViewById(R.id.object_list_title) as TextView
+        val object_list_title = rowView.findViewById(R.id.object_list_title) as TextView
 
         // Get subtitle element
         val subtitleTextView = rowView.findViewById(R.id.object_list_subtitle) as TextView
@@ -94,18 +94,19 @@ class MainListAdapterClass(
         // Get thumbnail element
         val thumbnailImageView = rowView.findViewById(R.id.object_list_thumbnail) as ImageView
 
+
         //Get checkbox element
         val checkbox = rowView.findViewById(R.id.checkBox) as CheckBox
 
 
         // getting the data from the different listView items and setting them to the view
         val object_item = getItem(position) as RadFileDataClass
-        val dropdownStringArray = context.resources.getStringArray(R.array.type_array)
+        //val dropdownStringArray = context.resources.getStringArray(R.array.type_array)
         if (highlight[position][0][0] == -1) {
             if (object_item.examination.length > 32) {
-                titleTextView.text = object_item.examination.take(29).plus("...")
+                object_list_title.text = object_item.examination.take(29).plus("...")
             } else {
-                titleTextView.text = object_item.examination
+                object_list_title.text = object_item.examination
             }
         } else {
             if (object_item.examination.length > 32) {
@@ -120,7 +121,7 @@ class MainListAdapterClass(
                     )
                 }
 
-                titleTextView.text = highlighted
+                object_list_title.text = highlighted
             } else {
                 val highlighted: Spannable = SpannableString(object_item.examination)
                 highlighted.setSpan(
@@ -129,7 +130,7 @@ class MainListAdapterClass(
                     highlight[position][0][1],
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
-                titleTextView.text = highlighted
+                object_list_title.text = highlighted
             }
         }
         if (highlight[position][1][0] == -1) {

@@ -47,7 +47,7 @@ class ExaminationEditingActivity : AppCompatActivity() {
 //        BitmapFactory.decodeResource(this.resources, R.drawable.camera_simple)
     var clickList = mutableListOf<Any>()
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
     //setting the format for the date field
     var formatter: DateTimeFormatter? = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
@@ -99,7 +99,7 @@ class ExaminationEditingActivity : AppCompatActivity() {
     /**
      * creating the instance of the [ExaminationEditingActivity]
      */
-    @RequiresApi(Build.VERSION_CODES.O)
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -214,6 +214,7 @@ class ExaminationEditingActivity : AppCompatActivity() {
             BitmapFactory.decodeResource(this.resources, R.drawable.camera_simple)
             ee_imageView.setImageBitmap(defaultImage)
             ee_imageView1.setImageBitmap(defaultImage)
+            ee_imageView2.setImageBitmap(defaultImage)
         }
 
 

@@ -279,11 +279,11 @@ class CreatePDF : AppCompatActivity() {
             mDoc.close()
 
             //show file saved message with file name and path
-            Toast.makeText(
-                this@CreatePDF,
-                "$mFileName.pdf\nis saved to\n$mFilePath",
-                Toast.LENGTH_LONG
-            ).show()
+//            Toast.makeText(
+//                this@CreatePDF,
+//                "$mFileName.pdf\nis saved to\n$mFilePath",
+//                Toast.LENGTH_LONG
+//            ).show()
         }
         catch (e: Exception){
             //if anything goes wrong causing exception, get and show exception message
